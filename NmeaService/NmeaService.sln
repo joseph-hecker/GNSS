@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36202.13 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NmeaService", "NmeaService.csproj", "{A5B39614-AE38-455A-BF7B-C0CE64D53441}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A5B39614-AE38-455A-BF7B-C0CE64D53441}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5B39614-AE38-455A-BF7B-C0CE64D53441}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5B39614-AE38-455A-BF7B-C0CE64D53441}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5B39614-AE38-455A-BF7B-C0CE64D53441}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {17796762-49C6-4E8C-82E4-9E0312DCEFE4}
+	EndGlobalSection
+EndGlobal
