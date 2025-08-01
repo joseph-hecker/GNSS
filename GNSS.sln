@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36202.13 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNSS", "GNSS.csproj", "{4A141C74-1780-4DED-84C1-47A29597E026}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNSS", "GNSS/GNSS.csproj", "{4A141C74-1780-4DED-84C1-47A29597E026}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
