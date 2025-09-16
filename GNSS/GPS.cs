@@ -57,6 +57,7 @@ public static class GPS
         {
             DriverType.TCP => new TCPDriver(driverOptions[Options.Host], int.Parse(driverOptions[Options.Port])),
             DriverType.Bluetooth => new BluetoothDriver(driverOptions[Options.COMPort], int.Parse(driverOptions[Options.BaudRate])),
+            DriverType.TextFile => new TextFileDriver(driverOptions[Options.NmeaFile]),
 
             _ => throw new InvalidOperationException($"'{driverType}' GPS driver is not supported."),
         };
@@ -123,6 +124,7 @@ public enum DriverType
 {
     TCP,
     Bluetooth,
+    TextFile,
 }
 
 public static class Options
@@ -134,6 +136,9 @@ public static class Options
     // Bluetooth Options
     public const string COMPort = "comPort";
     public const string BaudRate = "baudRate";
+
+    // TextFile Options
+    public const string NmeaFile = "nmeaFile";
 
     // NTrip Options
     public const string NTripAddress = "ntripAddress";
