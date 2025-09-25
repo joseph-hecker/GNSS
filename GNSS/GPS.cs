@@ -26,7 +26,7 @@ public static class GPS
         void SetResult(GPSData data)
         {
             OnLocationUpdated -= SetResult;
-            source.SetResult(data.Copy());
+            source.SetResult(data);
         }
 
         OnLocationUpdated += SetResult;
