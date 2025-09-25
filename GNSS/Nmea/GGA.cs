@@ -64,7 +64,7 @@ public class GGA : NmeaSentence, ILocation
 
     public override void UpdateGPSData(GPSData data)
     {
-        data.UTC = data.UTC.Date.AddTicks(Time.Ticks);
+        data.UTCDate = DateOnly.FromDateTime(data.UTC.Date);
         data.Latitude = Latitude();
         data.Longitude = Longitude();
         data.Altitude = Alt;

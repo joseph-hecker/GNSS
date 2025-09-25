@@ -1,10 +1,13 @@
 ﻿using GNSS.Nmea;
+using System.Net.Http.Headers;
 
 namespace GNSS;
 
 public class GPSData
 {
-    public DateTime UTC { get; internal set; }
+    internal DateOnly UTCDate { get; set; }
+    internal TimeOnly UTCTime { get; set; }
+    public DateTime UTC => new(UTCDate, UTCTime);
     public double Latitude { get; internal set; }
     public double Longitude { get; internal set; }
     public double Altitude { get; internal set; }
