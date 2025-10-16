@@ -22,12 +22,14 @@ public class GPSData
     public IEnumerable<Satellite> Satellites { get; internal set; } = [];
     public int? Age { get; internal set; }
     public int? StationID { get; internal set; }
+    public ENAV? EnavData { get; internal set; }
 
     internal GPSData Copy()
     {
         return new()
         {
-            UTC = UTC,
+            UTCDate = UTCDate,
+            UTCTime = UTCTime,
             Latitude = Latitude,
             Longitude = Longitude,
             Altitude = Altitude,
@@ -41,7 +43,8 @@ public class GPSData
             SatellitesInView = SatellitesInView,
             Satellites = Satellites,
             Age = Age,
-            StationID = StationID
+            StationID = StationID,
+            EnavData = EnavData,
         };
     }
 }

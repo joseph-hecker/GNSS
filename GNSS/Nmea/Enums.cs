@@ -17,8 +17,8 @@ public enum Fix : int
     Invalid  = 0,
     GPS      = 1,
     DGPS     = 2,
-    RTKFloat = 5,
     RTKFix   = 4,
+    RTKFloat = 5,
 }
 
 public enum FixMode : int
