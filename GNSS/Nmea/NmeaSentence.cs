@@ -2,7 +2,7 @@
 
 namespace GNSS.Nmea;
 
-public abstract class NmeaSentence
+public abstract class NmeaSentence : IEquatable<NmeaSentence>
 {
     protected readonly string _message;
     protected readonly string[] _parts;
@@ -21,14 +21,29 @@ public abstract class NmeaSentence
     public void ValidateChecksum()
     {
         int index = _message.IndexOf('*');
-        int expected = Convert.ToInt32(_message[(index + 1)..], 16);
-        int checksum = 0;
+        byte expected = Convert.ToByte(_message[(index + 1)..], 16);
+        byte checksum = 0;
         for (int i = 1; i < index; i++)
         {
             checksum ^= Convert.ToByte(_message[i]);
         }
 
-        if (checksum != expected) throw new ChecksumException(_message);
+        if (checksum != expected) throw new ChecksumException($"Expected checksum {expected:X}({expected}), but got {checksum:X}({checksum}). ({_message})");
+    }
+
+    public bool Equals(NmeaSentence? other)
+    {
+        return _message.Equals(other?._message);
+    }
+
+    public override bool Equals(object obj)
+    {
+        return Equals(obj as NmeaSentence);
+    }
+
+    public override int GetHashCode()
+    {
+        return _message.GetHashCode();
     }
 
     public override string ToString()

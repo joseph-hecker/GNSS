@@ -1,18 +1,11 @@
 ﻿using GNSS.Nmea;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Collections.Specialized.BitVector32;
 
 namespace GNSS.Test;
 
 public class NmeaTests
 {
     [Test, TestOf(typeof(GGA))]
-    [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*4F")]
+    [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7F")]
     [TestCase("$GPGGA,220314.00,4032.11025544,N,10502.52948864,W,0,15,0.6,1514.592,M,-20.906,M,2.0,0029*4A")]
     public void TestGGA(string nmea)
     {
