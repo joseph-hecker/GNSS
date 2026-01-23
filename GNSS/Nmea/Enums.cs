@@ -1,15 +1,32 @@
 ﻿namespace GNSS.Nmea;
 
+[Flags]
 public enum NmeaType : uint
 {
     Unknown     = 0x00000000,
     GGA         = 0x00000001,
     GPGGA       = GGA,
     GSV         = 0x00000002,
+
+    /// <summary>
+    /// Galileo satellites.
+    /// </summary>
+    GAGSV       = GSV,
+
+    /// <summary>
+    /// BeiDou satellites.
+    /// </summary>
+    GBGSV       = GSV,
+
+    /// <summary>
+    /// GLONASS satellites.
+    /// </summary>
+    GLGSV       = GSV,
+
+    /// <summary>
+    /// GPS / SBAS satellites.
+    /// </summary>
     GPGSV       = GSV,
-    //GLGSV       = GSV,
-    //GAGSV       = GSV,
-    //GBGSV       = GSV,
 }
 
 public enum Fix : int
