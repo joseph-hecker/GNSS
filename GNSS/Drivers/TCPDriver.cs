@@ -17,7 +17,7 @@ public class TCPDriver : IDriver
         Port = port;
     }
 
-    public void Start(Dictionary<string, string>? ntripOptions)
+    public void Start(Dictionary<string, string>? ntripOptions = null)
     {
         Task.Run(() =>
         {

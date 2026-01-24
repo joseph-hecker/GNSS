@@ -10,15 +10,6 @@ namespace GNSS.Test.Drivers;
 public class TextFileDriverTests
 {
     private const string INVALID_NMEA_FILE_KEYWORD = "INVALID";
-    private static string TestNmeaDirectory
-    {
-        get
-        {
-            string projectDirectory = Directory.GetParent(TestContext.CurrentContext.TestDirectory)?.Parent?.Parent?.FullName
-                ?? throw new DirectoryNotFoundException("Could not find project directory.");
-            return Path.Combine(projectDirectory, "TestData", "Nmea");
-        }
-    }
 
     /// <summary>
     /// Retrieves the list of valid NMEA test files from the test directory, ie. files that contain GGA messages.
@@ -27,8 +18,8 @@ public class TextFileDriverTests
     /// string "INVALID" in their file names.</returns>
     private static string[] GetValidNmeaFiles()
     {
-        IEnumerable<string> txtFiles = Directory.GetFiles(TestNmeaDirectory, "*.txt").Where(file => !file.Contains(INVALID_NMEA_FILE_KEYWORD));
-        IEnumerable<string> logFiles = Directory.GetFiles(TestNmeaDirectory, "*.log").Where(file => !file.Contains(INVALID_NMEA_FILE_KEYWORD));
+        IEnumerable<string> txtFiles = Directory.GetFiles(Util.TestNmeaDirectory, "*.txt").Where(file => !file.Contains(INVALID_NMEA_FILE_KEYWORD));
+        IEnumerable<string> logFiles = Directory.GetFiles(Util.TestNmeaDirectory, "*.log").Where(file => !file.Contains(INVALID_NMEA_FILE_KEYWORD));
         return [..txtFiles, ..logFiles];
     }
 
@@ -39,8 +30,8 @@ public class TextFileDriverTests
     /// string "INVALID" in their file names.</returns>
     private static string[] GetInvalidNmeaFiles()
     {
-        IEnumerable<string> txtFiles = Directory.GetFiles(TestNmeaDirectory, "*.txt").Where(file => file.Contains(INVALID_NMEA_FILE_KEYWORD));
-        IEnumerable<string> logFiles = Directory.GetFiles(TestNmeaDirectory, "*.log").Where(file => file.Contains(INVALID_NMEA_FILE_KEYWORD));
+        IEnumerable<string> txtFiles = Directory.GetFiles(Util.TestNmeaDirectory, "*.txt").Where(file => file.Contains(INVALID_NMEA_FILE_KEYWORD));
+        IEnumerable<string> logFiles = Directory.GetFiles(Util.TestNmeaDirectory, "*.log").Where(file => file.Contains(INVALID_NMEA_FILE_KEYWORD));
         return [..txtFiles, ..logFiles];
     }
 

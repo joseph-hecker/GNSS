@@ -68,6 +68,6 @@ public class GPSData : IEquatable<GPSData>
                Satellites.SequenceEqual(other.Satellites) &&
                Age == other.Age &&
                StationID == other.StationID &&
-               (EnavData?.Equals(other.EnavData) ?? false);
+               (EnavData?.Equals(other.EnavData) ?? other.EnavData is null);
     }
 }

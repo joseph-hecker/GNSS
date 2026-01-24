@@ -22,7 +22,7 @@ public class BluetoothDriver : IDriver
         }
     }
 
-    public void Start(Dictionary<string, string>? ntripOptions)
+    public void Start(Dictionary<string, string>? ntripOptions = null)
     {
         SerialPort.DataReceived += DataRecieved;
         SerialPort.Open();

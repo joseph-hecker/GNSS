@@ -63,7 +63,7 @@ public static class GPS
         Driver = null;
     }
 
-    public static void StartUpdatingLocation(Dictionary<string, string>? ntripOptions)
+    public static void StartUpdatingLocation(Dictionary<string, string>? ntripOptions = null)
     {
         if (Driver is null)
         {
