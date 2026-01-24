@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 
 namespace GNSS;
 
-public class GPSData
+public class GPSData : IEquatable<GPSData>
 {
     internal DateOnly UTCDate { get; set; }
     internal TimeOnly UTCTime { get; set; }
@@ -46,5 +46,28 @@ public class GPSData
             StationID = StationID,
             EnavData = EnavData,
         };
+    }
+
+    public bool Equals(GPSData? other)
+    {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return UTCDate == other.UTCDate &&
+               UTCTime == other.UTCTime &&
+               Latitude == other.Latitude &&
+               Longitude == other.Longitude &&
+               Altitude == other.Altitude &&
+               Fix == other.Fix &&
+               FixMode == other.FixMode &&
+               HDOP == other.HDOP &&
+               VDOP == other.VDOP &&
+               PDOP == other.PDOP &&
+               EstimatedAccuracy == other.EstimatedAccuracy &&
+               SatellitesInUse == other.SatellitesInUse &&
+               SatellitesInView == other.SatellitesInView &&
+               Satellites.SequenceEqual(other.Satellites) &&
+               Age == other.Age &&
+               StationID == other.StationID &&
+               (EnavData?.Equals(other.EnavData) ?? false);
     }
 }

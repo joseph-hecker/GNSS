@@ -11,12 +11,6 @@ public static class GPS
     private static GPSData? CurrentGPSData { get; set; }
     private static Timer? LocationTimer { get; set; }
 
-    public static double PoleHeight
-    {
-        get => Driver?.PoleHeight ?? 0;
-        set => Driver?.PoleHeight = value;
-    }
-
     public delegate void OnLocationUpdatedEventHandler(GPSData data);
     public static event OnLocationUpdatedEventHandler? OnLocationUpdated;
 

@@ -7,8 +7,6 @@ public class TCPDriver : IDriver
 {
     public event IDriver.OnNmeaRecievedEventHandler? OnNmeaRecieved;
 
-    public double PoleHeight { get; set; }
-
     private string Host { get; set; }
     private int Port { get; set; }
     private TcpClient? Client { get; set; }

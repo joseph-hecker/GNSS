@@ -6,8 +6,6 @@ public class BluetoothDriver : IDriver
 {
     public event IDriver.OnNmeaRecievedEventHandler? OnNmeaRecieved;
 
-    public double PoleHeight { get; set; }
-
     private SerialPort SerialPort { get; set; }
 
     public BluetoothDriver(string comPort, int baudRate)
