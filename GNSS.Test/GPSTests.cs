@@ -12,13 +12,13 @@ public class GPSTests
     {
         { DriverType.TCP, new()
         {
-            { Options.Host, "" },
-            { Options.Port, "" }
+            { Options.Host, "127.0.0.1" },
+            { Options.Port, "77776" }
         }},
         { DriverType.Bluetooth, new()
         {
-            { Options.COMPort, "" },
-            { Options.BaudRate, "" }
+            { Options.COMPort, "COM4" },
+            { Options.BaudRate, "9600" }
         }},
         { DriverType.TextFile, new()
         {
@@ -42,7 +42,7 @@ public class GPSTests
         catch (FormatException)
         {
             var driver = TestContext.CurrentContext.Test.Arguments[0];
-            Assert.Ignore($"{driver} driver options are invalid.");
+            Assert.Fail($"{driver} driver options are invalid.");
         }
     }
 
