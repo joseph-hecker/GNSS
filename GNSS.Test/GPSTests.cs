@@ -22,7 +22,7 @@ public class GPSTests
         }},
         { DriverType.TextFile, new()
         {
-            { Options.NmeaFile, Path.Combine(Util.TestNmeaDirectory, "Arrow100_SBAS.txt") },
+            { Options.NmeaFile, Util.GetNmeaFile("Arrow100_SBAS.txt") },
         }},
     };
 
@@ -80,5 +80,27 @@ public class GPSTests
         GPS.StartUpdatingLocation();
         GPSData newGpsData = await GPS.GetNextLocationAsync();
         Assert.That(newGpsData, Is.Not.EqualTo(gpsData));
+    }
+
+    [Test, TestOf(nameof(GPS.WaitForRequirements))]
+    public async Task TestWaitForRequirements()
+    {
+        DriverType driverType = DriverType.TextFile;
+        GPS.Connect(driverType, DriverOptions[driverType]);
+        GPS.StartUpdatingLocation();
+        CancellationToken ct = GPS.WaitForRequirements(data => data.SatellitesInUse >= 10);
+        while (!ct.WaitHandle.WaitOne()) { }
+        GPSData data = await GPS.GetNextLocationAsync();
+        Assert.That(data.SatellitesInUse, Is.GreaterThanOrEqualTo(10));
+    }
+
+    [Test, TestOf(nameof(GPS.WaitForRequirements))]
+    public void TestWaitForRequirementsImmediateCancelation()
+    {
+        DriverType driverType = DriverType.TextFile;
+        GPS.Connect(driverType, DriverOptions[driverType]);
+        GPS.StartUpdatingLocation();
+        CancellationToken ct = GPS.WaitForRequirements(data => true);
+        Assert.That(ct, Is.EqualTo(CancellationToken.None));
     }
 }

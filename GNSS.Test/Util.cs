@@ -8,6 +8,8 @@ namespace GNSS.Test;
 
 public static class Util
 {
+    private const string INVALID_NMEA_FILE_KEYWORD = "INVALID";
+
     public static string TestDataDirectory
     {
         get
@@ -19,4 +21,33 @@ public static class Util
     }
 
     public static string TestNmeaDirectory => Path.Combine(TestDataDirectory, "Nmea");
+
+    public static string GetNmeaFile(string nmeaFile)
+    {
+        return Path.Combine(TestNmeaDirectory, nmeaFile);
+    }
+
+    /// <summary>
+    /// Retrieves the list of valid NMEA test files from the test directory, ie. files that contain GGA messages.
+    /// </summary>
+    /// <returns>An array of file paths for all files in the test directory that do not contain the
+    /// string "INVALID" in their file names.</returns>
+    public static string[] GetValidNmeaFiles()
+    {
+        IEnumerable<string> txtFiles = Directory.GetFiles(Util.TestNmeaDirectory, "*.txt").Where(file => !file.Contains(INVALID_NMEA_FILE_KEYWORD));
+        IEnumerable<string> logFiles = Directory.GetFiles(Util.TestNmeaDirectory, "*.log").Where(file => !file.Contains(INVALID_NMEA_FILE_KEYWORD));
+        return [.. txtFiles, .. logFiles];
+    }
+
+    /// <summary>
+    /// Retrieves the list of invalid NMEA test files from the test directory, ie. files that do not contain GGA messages.
+    /// </summary>
+    /// <returns>An array of file paths for all files in the test directory that contain the
+    /// string "INVALID" in their file names.</returns>
+    public static string[] GetInvalidNmeaFiles()
+    {
+        IEnumerable<string> txtFiles = Directory.GetFiles(Util.TestNmeaDirectory, "*.txt").Where(file => file.Contains(INVALID_NMEA_FILE_KEYWORD));
+        IEnumerable<string> logFiles = Directory.GetFiles(Util.TestNmeaDirectory, "*.log").Where(file => file.Contains(INVALID_NMEA_FILE_KEYWORD));
+        return [.. txtFiles, .. logFiles];
+    }
 }

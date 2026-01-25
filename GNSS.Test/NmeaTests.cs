@@ -1,13 +1,30 @@
 ﻿using GNSS.Nmea;
+using GNSS.Nmea.Exceptions;
 using System.Collections;
+using System.Data;
 
 namespace GNSS.Test;
 
 public class NmeaTests
 {
-    private static string FormatErrorMessage(string nmeaMessage, int e)
+    private static int NmeaIndex { get; set; }
+
+    [SetUp]
+    public void SetUp()
     {
-        return $"Error parsing nmea message at element {e}. ({nmeaMessage})";
+        NmeaIndex = 0;
+    }
+
+    private static string FormatErrorMessage()
+    {
+        string? nmea = TestContext.CurrentContext.Test.Arguments.SingleOrDefault(arg => arg is string str && str.StartsWith('$')) as string;
+        string message = $"Error parsing nmea message at element {NmeaIndex}.";
+        if (nmea is not null)
+        {
+            message += $" ({nmea})";
+        }
+
+        return message;
     }
 
     [Test, TestOf(nameof(GGA))]
@@ -18,21 +35,20 @@ public class NmeaTests
         GGA gga = new(nmea);
         Assert.Multiple(() =>
         {
-            int i = 0;
             string[] expected = nmea[..^3].Split(',');
-            Assert.That(gga.ID, Is.EqualTo(NmeaType.GGA), FormatErrorMessage(nmea, i));
-            Assert.That(gga.Time.ToString("HHmmss.ff"), Is.EqualTo(expected[++i]), FormatErrorMessage(nmea, i));
-            Assert.That(gga.Lat, Is.EqualTo(expected[++i]), FormatErrorMessage(nmea, i));
-            Assert.That(gga.LatDir, Is.EqualTo(expected[++i]), FormatErrorMessage(nmea, i));
-            Assert.That(gga.Lon, Is.EqualTo(expected[++i]), FormatErrorMessage(nmea, i));
-            Assert.That(gga.LonDir, Is.EqualTo(expected[++i]), FormatErrorMessage(nmea, i));
-            Assert.That(gga.Fix, Is.EqualTo(Enum.Parse<Fix>(expected[++i])), FormatErrorMessage(nmea, i));
-            Assert.That(gga.SatsUsed, Is.EqualTo(int.Parse(expected[++i])), FormatErrorMessage(nmea, i));
-            Assert.That(gga.Hdop, Is.EqualTo(double.Parse(expected[++i])), FormatErrorMessage(nmea, i));
-            Assert.That(gga.Alt, Is.EqualTo(double.Parse(expected[++i])), FormatErrorMessage(nmea, i));
-            Assert.That(gga.AltUnits, Is.EqualTo(expected[++i]), FormatErrorMessage(nmea, i));
-            Assert.That(gga.Undulation, Is.EqualTo(double.Parse(expected[++i])), FormatErrorMessage(nmea, i));
-            Assert.That(gga.UndulationUnits, Is.EqualTo(expected[++i]), FormatErrorMessage(nmea, i));
+            Assert.That(gga.ID, Is.EqualTo(NmeaType.GGA), FormatErrorMessage);
+            Assert.That(gga.Time.ToString("HHmmss.ff"), Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.Lat, Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.LatDir, Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.Lon, Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.LonDir, Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.Fix, Is.EqualTo(Enum.Parse<Fix>(expected[++NmeaIndex])), FormatErrorMessage);
+            Assert.That(gga.SatsUsed, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
+            Assert.That(gga.Hdop, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
+            Assert.That(gga.Alt, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
+            Assert.That(gga.AltUnits, Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.Undulation, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
+            Assert.That(gga.UndulationUnits, Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
         });
 
         GPSData data = new();
@@ -70,21 +86,21 @@ public class NmeaTests
         string[] messages = nmea.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
         foreach (string message in messages)
         {
+            SetUp();
             GSV gsv = new(message);
             Assert.Multiple(() =>
             {
-                int i = 0;
                 string[] expected = message[..^3].Split(',');
-                Assert.That(gsv.ID, Is.EqualTo(NmeaType.GSV), FormatErrorMessage(message, i));
-                Assert.That(gsv.TotalMessages, Is.EqualTo(int.Parse(expected[++i])), FormatErrorMessage(message, i));
-                Assert.That(gsv.MessageNumber, Is.EqualTo(int.Parse(expected[++i])), FormatErrorMessage(message, i));
-                Assert.That(gsv.SatellitesInView, Is.EqualTo(int.Parse(expected[++i])), FormatErrorMessage(message, i));
+                Assert.That(gsv.ID, Is.EqualTo(NmeaType.GSV), FormatErrorMessage);
+                Assert.That(gsv.TotalMessages, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
+                Assert.That(gsv.MessageNumber, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
+                Assert.That(gsv.SatellitesInView, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
                 foreach (Satellite satellite in gsv.Satellites)
                 {
-                    Assert.That(satellite.PRN, Is.EqualTo(int.Parse(expected[++i])), FormatErrorMessage(message, i));
-                    Assert.That(satellite.Elevation, Is.EqualTo(int.Parse(expected[++i])), FormatErrorMessage(message, i));
-                    Assert.That(satellite.Azimuth, Is.EqualTo(int.Parse(expected[++i])), FormatErrorMessage(message, i));
-                    Assert.That(satellite.SNR, Is.EqualTo(int.Parse(expected[++i])), FormatErrorMessage(message, i));
+                    Assert.That(satellite.PRN, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
+                    Assert.That(satellite.Elevation, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
+                    Assert.That(satellite.Azimuth, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
+                    Assert.That(satellite.SNR, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
                 }
             });
 
@@ -100,5 +116,49 @@ public class NmeaTests
             Assert.That(gsv.ValidateChecksum, Throws.Nothing);
             Assert.That(NmeaSentence.Parse(message), Is.EqualTo(gsv));
         }
+    }
+
+    [Test, TestOf(nameof(NmeaSentence.Parse))]
+    [TestCase("$GPXXX,123456.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7A")]
+    public void TestParseUnknownSentence(string nmea)
+    {
+        Assert.That(NmeaSentence.Parse(nmea), Is.Null);
+    }
+
+    [Test, TestOf(nameof(NmeaSentence.ValidateChecksum))]
+    [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7F", true)]
+    [TestCase("$GPGGA,220314.00,4032.11025544,N,10502.52948864,W,0,15,0.6,1514.592,M,-20.906,M,2.0,0029*4A", true)]
+    [TestCase("$GPGSV,8,1,25,21,44,141,47,15,14,049,44,6,31,255,46,3,25,280,44*75", true)]
+    [TestCase("$GPGSV,8,2,25,18,61,057,48,22,68,320,52,27,34,268,47,24,32,076,45*76", true)]
+    [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*00", false)]
+    [TestCase("$GPGGA,220314.00,4032.11025544,N,10502.52948864,W,0,15,0.6,1514.592,M,-20.906,M,2.0,0029*4B", false)]
+    [TestCase("$GPGSV,8,1,25,21,44,141,47,15,14,049,44,6,31,255,46,3,25,280,44*32", false)]
+    [TestCase("$GPGSV,8,2,25,18,61,057,48,22,68,320,52,27,34,268,47,24,32,076,45*FF", false)]
+    public void TestValidateChecksum(string nmea, bool isValid)
+    {
+        Assert.That(() => NmeaSentence.Parse(nmea), isValid ? Throws.Nothing : Throws.TypeOf<ChecksumException>());
+    }
+
+    [Test]
+    [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7F",
+              "$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7F")]
+    [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7F",
+              "$GPGGA,220314.00,4032.11025544,N,10502.52948864,W,0,15,0.6,1514.592,M,-20.906,M,2.0,0029*4A")]
+    public void TestNmeaEquality(string nmea1, string nmea2)
+    {
+        bool expected = nmea1 == nmea2;
+        NmeaSentence sentence1 = NmeaSentence.Parse(nmea1)!;
+        NmeaSentence sentence2 = NmeaSentence.Parse(nmea2)!;
+        Assert.Multiple(() =>
+        {
+            bool checkEquality = sentence1.Equals(sentence2);
+            bool checkObjEquality = sentence1.Equals((object?)sentence2);
+            bool checkHashCode = sentence1.GetHashCode() == sentence2.GetHashCode();
+            bool checkToString = sentence1.ToString() == sentence2.ToString();
+            Assert.That(checkEquality, Is.EqualTo(expected));
+            Assert.That(checkObjEquality, Is.EqualTo(expected));
+            Assert.That(checkHashCode, Is.EqualTo(expected));
+            Assert.That(checkToString, Is.EqualTo(expected));
+        });
     }
 }
