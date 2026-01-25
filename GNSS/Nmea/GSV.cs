@@ -33,7 +33,7 @@ public class GSV : NmeaSentence
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing GSV message. ({message})", ex);
+            throw new NmeaException($"Error parsing GSV message. ({_message})", ex);
         }
     }
 

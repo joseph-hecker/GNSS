@@ -11,9 +11,16 @@ public abstract class NmeaSentence : IEquatable<NmeaSentence>
 
     public NmeaSentence(string message)
     {
-        _message = message.Replace("\r\n", "");
-        _parts = message[1..^3].Split(',');
-        ID = Enum.Parse<NmeaType>(_parts[0]);
+        try
+        {
+            _message = message.Replace("\r\n", "");
+            _parts = message[1..^3].Split(',');
+            ID = Enum.Parse<NmeaType>(_parts[0]);
+        }
+        catch (Exception ex)
+        {
+            throw new NmeaException($"Error parsing NMEA message. ({_message})", ex);
+        }
     }
 
     public abstract void UpdateGPSData(GPSData data);

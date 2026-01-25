@@ -9,12 +9,6 @@ public class NmeaTests
 {
     private static int NmeaIndex { get; set; }
 
-    [SetUp]
-    public void SetUp()
-    {
-        NmeaIndex = 0;
-    }
-
     private static string FormatErrorMessage()
     {
         string? nmea = TestContext.CurrentContext.Test.Arguments.SingleOrDefault(arg => arg is string str && str.StartsWith('$')) as string;
@@ -25,6 +19,17 @@ public class NmeaTests
         }
 
         return message;
+    }
+
+    private static string[] GetInvalidMedssageForEachNmeaType()
+    {
+        return [..from id in Enum.GetValues<NmeaType>().Where(nmeaType => nmeaType != NmeaType.Unknown) select $"${id},,,,,,*00"];
+    }
+
+    [SetUp]
+    public void SetUp()
+    {
+        NmeaIndex = 0;
     }
 
     [Test, TestOf(nameof(GGA))]
@@ -125,6 +130,14 @@ public class NmeaTests
         Assert.That(NmeaSentence.Parse(nmea), Is.Null);
     }
 
+    [Test, TestOf(nameof(NmeaSentence.Parse))]
+    [TestCase("This is not a nmea sentence.")]
+    [TestCaseSource(nameof(GetInvalidMedssageForEachNmeaType))]
+    public void TestParseInvalidSentence(string nmea)
+    {
+        Assert.Throws<NmeaException>(() => NmeaSentence.Parse(nmea));
+    }
+
     [Test, TestOf(nameof(NmeaSentence.ValidateChecksum))]
     [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7F", true)]
     [TestCase("$GPGGA,220314.00,4032.11025544,N,10502.52948864,W,0,15,0.6,1514.592,M,-20.906,M,2.0,0029*4A", true)]
@@ -139,7 +152,7 @@ public class NmeaTests
         Assert.That(() => NmeaSentence.Parse(nmea), isValid ? Throws.Nothing : Throws.TypeOf<ChecksumException>());
     }
 
-    [Test]
+    [Test, TestOf(nameof(NmeaSentence.Equals)), TestOf(nameof(NmeaSentence.GetHashCode)), TestOf(nameof(NmeaSentence.ToString))]
     [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7F",
               "$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7F")]
     [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7F",
