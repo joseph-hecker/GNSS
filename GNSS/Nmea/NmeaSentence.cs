@@ -68,6 +68,7 @@ public abstract class NmeaSentence : IEquatable<NmeaSentence>
             {
                 NmeaType.GGA => new GGA(message),
                 NmeaType.GSV => new GSV(message),
+                NmeaType.ENAV => new ENAV(message),
 
                 _ => null,
             };
