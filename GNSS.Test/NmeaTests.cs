@@ -2,6 +2,7 @@
 using GNSS.Nmea.Exceptions;
 using System.Collections;
 using System.Data;
+using System.IO;
 using System.Xml;
 
 namespace GNSS.Test;
@@ -241,56 +242,121 @@ public class NmeaTests
 
 public class NmeaEnumTests
 {
+    [Test, TestOf(nameof(NmeaType))]
+    public void TestNmeaType([Values] NmeaType nmeaType)
+    {
+        uint? GetExpected(NmeaType nmeaType)
+        {
+            return nmeaType switch
+            {
+                NmeaType.Unknown => 0x00000000,
+                NmeaType.GGA => 0x00000001,
+                NmeaType.GLL => 0x00000002,
+                NmeaType.GSA => 0x00000004,
+                NmeaType.GST => 0x00000008,
+                NmeaType.GSV => 0x00000010,
+                NmeaType.RMC => 0x00000020,
+                NmeaType.RME => 0x00000040,
+                NmeaType.VTG => 0x00000080,
+                NmeaType.ENAV => 0x00000100,
+                _ => null,
+            };
+        }
+
+        uint? expected = GetExpected(nmeaType);
+        Assert.That((uint)nmeaType, Is.EqualTo(expected), $"", nmeaType.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
+
+
+        Assert.That(nmeaType, Is.EqualTo((uint)nmeaType switch
+        {
+            0x00000000 => NmeaType.Unknown,
+            0x00000001 => NmeaType.GGA,
+            0x00000002 => NmeaType.GLL,
+            0x00000004 => NmeaType.GSA,
+            0x00000008 => NmeaType.GST,
+            0x00000010 => NmeaType.GSV,
+            0x00000020 => NmeaType.RMC,
+            0x00000040 => NmeaType.RME,
+            0x00000080 => NmeaType.VTG,
+            0x00000100 => NmeaType.ENAV,
+            _ => null,
+        }), constraintExpression: $"Is.EqualTo({nmeaType})");
+    }
+
     [Test, TestOf(nameof(Fix))]
     public void TestFix([Values] Fix fix)
     {
-        Assert.That(fix, Is.EqualTo((int)fix switch
+        int? GetExpected(Fix fix)
         {
-            0 => Fix.Invalid,
-            1 => Fix.GPS,
-            2 => Fix.DGPS,
-            4 => Fix.RTKFix,
-            5 => Fix.RTKFloat,
-            _ => null,
-        }), constraintExpression: $"Is.EqualTo({fix})");
+            return fix switch
+            {
+                Fix.Invalid => 0,
+                Fix.GPS => 1,
+                Fix.DGPS => 2,
+                Fix.RTKFix => 4,
+                Fix.RTKFloat => 5,
+                _ => null,
+            };
+        }
+
+        int? expected = GetExpected(fix);
+        Assert.That((int)fix, Is.EqualTo(expected), $"", fix.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
     }
 
     [Test, TestOf(nameof(FixMode))]
     public void TestFixMode([Values] FixMode fixMode)
     {
-        Assert.That(fixMode, Is.EqualTo((int)fixMode switch
+        int? GetExpected(FixMode fixMode)
         {
-            1 => FixMode.None,
-            2 => FixMode.TwoD,
-            3 => FixMode.ThreeD,
-            _ => null,
-        }), constraintExpression: $"Is.EqualTo({fixMode})");
+            return fixMode switch
+            {
+                FixMode.None => 1,
+                FixMode.TwoD => 2,
+                FixMode.ThreeD => 3,
+                _ => null,
+            };
+        }
+
+        int? expected = GetExpected(fixMode);
+        Assert.That((int)fixMode, Is.EqualTo(expected), $"", fixMode.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
     }
 
     [Test, TestOf(nameof(EnavMode))]
     public void TestEnavMode([Values] EnavMode enavMode)
     {
-        Assert.That(enavMode, Is.EqualTo((int)enavMode switch
+        int? GetExpected(EnavMode enavMode)
         {
-            0 => EnavMode.GNSS,
-            1 => EnavMode.Tilt,
-            3 => EnavMode.InvisiblePole,
-            4 => EnavMode.ExtensiblePoleTriggerUnpressed,
-            5 => EnavMode.ExtensiblePoleTriggerPressed,
-            _ => null,
-        }), constraintExpression: $"Is.EqualTo({enavMode})");
+            return enavMode switch
+            {
+                EnavMode.GNSS => 0,
+                EnavMode.Tilt => 1,
+                EnavMode.InvisiblePole => 3,
+                EnavMode.ExtensiblePoleTriggerUnpressed => 4,
+                EnavMode.ExtensiblePoleTriggerPressed => 5,
+                _ => null,
+            };
+        }
+
+        int? expected = GetExpected(enavMode);
+        Assert.That((int)enavMode, Is.EqualTo(expected), $"", enavMode.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
     }
 
     [Test, TestOf(nameof(SmartHandleStatus))]
     public void TestSmartHandleStatus([Values] SmartHandleStatus shStatus)
     {
-        Assert.That(shStatus, Is.EqualTo((int)shStatus switch
+        int? GetExpected(SmartHandleStatus shStatus)
         {
-            0 => SmartHandleStatus.None,
-            1 => SmartHandleStatus.StandardHandle,
-            2 => SmartHandleStatus.SmartHandleOff,
-            3 => SmartHandleStatus.SmartHandleOn,
-            _ => null,
-        }), constraintExpression: $"Is.EqualTo({shStatus})");
+            return shStatus switch
+            {
+                SmartHandleStatus.None => 0,
+                SmartHandleStatus.StandardHandle => 1,
+                SmartHandleStatus.SmartHandleOff => 2,
+                SmartHandleStatus.SmartHandleOn => 3,
+                _ => null,
+            };
+        }
+
+        int? expected = GetExpected(shStatus);
+        Assert.That((int)shStatus, Is.EqualTo(expected), $"", shStatus.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
     }
 }

@@ -5,19 +5,18 @@ public enum NmeaType : uint
 {
     Unknown     = 0x00000000,
 
-    GGA         = 0x00000001,
     GPGGA       = GGA,
+    GGA         = 0x00000001,
 
-    GLL         = 0x00000002,
     GPGLL       = GLL,
+    GLL         = 0x00000002,
 
-    GSA         = 0x00000004,
     GPGSA       = GSA,
+    GSA         = 0x00000004,
 
-    GST         = 0x00000008,
     GPGST       = GST,
+    GST         = 0x00000008,
 
-    GSV         = 0x00000010,
     /// <summary>
     /// Galileo satellites.
     /// </summary>
@@ -34,17 +33,18 @@ public enum NmeaType : uint
     /// GPS / SBAS satellites.
     /// </summary>
     GPGSV       = GSV,
+    GSV         = 0x00000010,
 
-    RMC         = 0x00000020,
     GPRMC       = RMC,
+    RMC         = 0x00000020,
 
-    RME         = 0x00000040,
     PGRME       = RME,
+    RME         = 0x00000040,
 
-    VTG         = 0x00000080,
     GPVTG       = VTG,
+    VTG         = 0x00000080,
 
-    ENAV        = 0x10000000,
+    ENAV        = 0x00000100,
 }
 
 public enum Fix : int
