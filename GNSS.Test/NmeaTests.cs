@@ -2,6 +2,7 @@
 using GNSS.Nmea.Exceptions;
 using System.Collections;
 using System.Data;
+using System.Xml;
 
 namespace GNSS.Test;
 
@@ -235,5 +236,61 @@ public class NmeaTests
             Assert.That(checkHashCode, Is.EqualTo(expected));
             Assert.That(checkToString, Is.EqualTo(expected));
         });
+    }
+}
+
+public class NmeaEnumTests
+{
+    [Test, TestOf(nameof(Fix))]
+    public void TestFix([Values] Fix fix)
+    {
+        Assert.That(fix, Is.EqualTo((int)fix switch
+        {
+            0 => Fix.Invalid,
+            1 => Fix.GPS,
+            2 => Fix.DGPS,
+            4 => Fix.RTKFix,
+            5 => Fix.RTKFloat,
+            _ => null,
+        }), constraintExpression: $"Is.EqualTo({fix})");
+    }
+
+    [Test, TestOf(nameof(FixMode))]
+    public void TestFixMode([Values] FixMode fixMode)
+    {
+        Assert.That(fixMode, Is.EqualTo((int)fixMode switch
+        {
+            1 => FixMode.None,
+            2 => FixMode.TwoD,
+            3 => FixMode.ThreeD,
+            _ => null,
+        }), constraintExpression: $"Is.EqualTo({fixMode})");
+    }
+
+    [Test, TestOf(nameof(EnavMode))]
+    public void TestEnavMode([Values] EnavMode enavMode)
+    {
+        Assert.That(enavMode, Is.EqualTo((int)enavMode switch
+        {
+            0 => EnavMode.GNSS,
+            1 => EnavMode.Tilt,
+            3 => EnavMode.InvisiblePole,
+            4 => EnavMode.ExtensiblePoleTriggerUnpressed,
+            5 => EnavMode.ExtensiblePoleTriggerPressed,
+            _ => null,
+        }), constraintExpression: $"Is.EqualTo({enavMode})");
+    }
+
+    [Test, TestOf(nameof(SmartHandleStatus))]
+    public void TestSmartHandleStatus([Values] SmartHandleStatus shStatus)
+    {
+        Assert.That(shStatus, Is.EqualTo((int)shStatus switch
+        {
+            0 => SmartHandleStatus.None,
+            1 => SmartHandleStatus.StandardHandle,
+            2 => SmartHandleStatus.SmartHandleOff,
+            3 => SmartHandleStatus.SmartHandleOn,
+            _ => null,
+        }), constraintExpression: $"Is.EqualTo({shStatus})");
     }
 }
