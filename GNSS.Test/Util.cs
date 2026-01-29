@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using GNSS.Nmea;
+using System.Text;
 
 namespace GNSS.Test;
 
@@ -56,5 +57,15 @@ public static class Util
 
         byte checksum = Encoding.ASCII.GetBytes(message).Aggregate((checksum, current) => (byte)(checksum ^ current));
         return checksum.ToString("X");
+    }
+
+    public class Tests
+    {
+        [Test, TestOf(nameof(GenerateChecksum))]
+        [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031")]
+        public void TestGenerateChecksum(string message)
+        {
+            Assert.That(() => NmeaSentence.Parse(message + $"*{GenerateChecksum(message)}"), Throws.Nothing);
+        }
     }
 }
