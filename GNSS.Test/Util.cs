@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -49,5 +50,16 @@ public static class Util
         IEnumerable<string> txtFiles = Directory.GetFiles(Util.TestNmeaDirectory, "*.txt").Where(file => file.Contains(INVALID_NMEA_FILE_KEYWORD));
         IEnumerable<string> logFiles = Directory.GetFiles(Util.TestNmeaDirectory, "*.log").Where(file => file.Contains(INVALID_NMEA_FILE_KEYWORD));
         return [.. txtFiles, .. logFiles];
+    }
+
+    public static string GenerateChecksum(string message)
+    {
+        if (message.StartsWith('$'))
+        {
+            message = message[1..];
+        }
+
+        byte checksum = Encoding.ASCII.GetBytes(message).Aggregate((checksum, current) => (byte)(checksum ^ current));
+        return checksum.ToString("X");
     }
 }

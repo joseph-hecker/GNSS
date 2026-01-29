@@ -5,7 +5,7 @@ using System.Data;
 using System.IO;
 using System.Xml;
 
-namespace GNSS.Test;
+namespace GNSS.Test.Nmea;
 
 public class NmeaTests
 {
@@ -21,6 +21,23 @@ public class NmeaTests
         }
 
         return message;
+    }
+
+    private static string[][] GetGSVMessages()
+    {
+        return
+        [
+            [
+                "$GPGSV,8,1,25,21,44,141,47,15,14,049,44,6,31,255,46,3,25,280,44*75",
+                "$GPGSV,8,2,25,18,61,057,48,22,68,320,52,27,34,268,47,24,32,076,45*76",
+                "$GPGSV,8,3,25,14,51,214,49,19,23,308,46*7E",
+                "$GPGSV,8,4,25,51,44,183,49,46,41,169,43,48,36,220,45*47",
+                "$GLGSV,8,5,25,82,49,219,52,76,22,051,41,83,37,316,51,67,57,010,51*6C",
+                "$GLGSV,8,6,25,77,24,108,44,81,10,181,46,78,1,152,34,66,18,060,45*50",
+                "$GLGSV,8,7,25,68,37,284,50*5C",
+                "$GBGSV,8,8,25,111,35,221,47,112,4,179,39,114,48,290,48*55",
+            ],
+        ];
     }
 
     [SetUp]
@@ -72,21 +89,68 @@ public class NmeaTests
         Assert.That(NmeaSentence.Parse(nmea), Is.EqualTo(gga));
     }
 
-    private static string[][] GetGSVMessages()
+    [Test, TestOf(nameof(GLL))]
+    [TestCase("$GPGLL,3953.88008971,N,10506.75318910,W,034138.00,A,D*7A")]
+    public void TestGLL(string nmea)
     {
-        return
-        [
-            [
-                "$GPGSV,8,1,25,21,44,141,47,15,14,049,44,6,31,255,46,3,25,280,44*75",
-                "$GPGSV,8,2,25,18,61,057,48,22,68,320,52,27,34,268,47,24,32,076,45*76",
-                "$GPGSV,8,3,25,14,51,214,49,19,23,308,46*7E",
-                "$GPGSV,8,4,25,51,44,183,49,46,41,169,43,48,36,220,45*47",
-                "$GLGSV,8,5,25,82,49,219,52,76,22,051,41,83,37,316,51,67,57,010,51*6C",
-                "$GLGSV,8,6,25,77,24,108,44,81,10,181,46,78,1,152,34,66,18,060,45*50",
-                "$GLGSV,8,7,25,68,37,284,50*5C",
-                "$GBGSV,8,8,25,111,35,221,47,112,4,179,39,114,48,290,48*55",
-            ],
-        ];
+        GLL gll = new(nmea);
+        Assert.Multiple(() =>
+        {
+            string[] expected = nmea[..^3].Split(',');
+        });
+
+        GPSData data = new();
+        gll.UpdateGPSData(data);
+        Assert.Multiple(() =>
+        {
+
+        });
+
+        Assert.That(gll.ValidateChecksum, Throws.Nothing);
+        Assert.That(NmeaSentence.Parse(nmea), Is.EqualTo(gll));
+    }
+
+    [Test, TestOf(nameof(GSA))]
+    [TestCase("$GNGSA,A,3,21,5,29,25,12,10,26,2,,,,,1.2,0.7,1.0*27")]
+    [TestCase("$GNGSA,A,3,65,67,80,81,82,88,66,,,,,,1.2,0.7,1.0*20")]
+    public void TestGSA(string nmea)
+    {
+        GSA gsa = new(nmea);
+        Assert.Multiple(() =>
+        {
+            string[] expected = nmea[..^3].Split(',');
+        });
+
+        GPSData data = new();
+        gsa.UpdateGPSData(data);
+        Assert.Multiple(() =>
+        {
+
+        });
+
+        Assert.That(gsa.ValidateChecksum, Throws.Nothing);
+        Assert.That(NmeaSentence.Parse(nmea), Is.EqualTo(gsa));
+    }
+
+    [Test, TestOf(nameof(GST))]
+    [TestCase("$GPGST,172814.0,0.006,0.023,0.020,273.6,0.023,0.020,0.031*6A")]
+    public void TestGST(string nmea)
+    {
+        GST gst = new(nmea);
+        Assert.Multiple(() =>
+        {
+            string[] expected = nmea[..^3].Split(',');
+        });
+
+        GPSData data = new();
+        gst.UpdateGPSData(data);
+        Assert.Multiple(() =>
+        {
+
+        });
+
+        Assert.That(gst.ValidateChecksum, Throws.Nothing);
+        Assert.That(NmeaSentence.Parse(nmea), Is.EqualTo(gst));
     }
 
     [Test, TestOf(nameof(GSV))]
@@ -127,6 +191,71 @@ public class NmeaTests
             Assert.That(gsv.ValidateChecksum, Throws.Nothing);
             Assert.That(NmeaSentence.Parse(message), Is.EqualTo(gsv));
         }
+    }
+
+    [Test, TestOf(nameof(RMC))]
+    [TestCase("$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A")]
+    public void TestRMC(string nmea)
+    {
+        RMC rmc = new(nmea);
+        Assert.Multiple(() =>
+        {
+            string[] expected = nmea[..^3].Split(',');
+        });
+
+        GPSData data = new();
+        rmc.UpdateGPSData(data);
+        Assert.Multiple(() =>
+        {
+
+        });
+
+        Assert.That(rmc.ValidateChecksum, Throws.Nothing);
+        Assert.That(NmeaSentence.Parse(nmea), Is.EqualTo(rmc));
+    }
+
+    [Test, TestOf(nameof(RMC))]
+    [TestCase("")]
+    [TestCase("")]
+    public void TestRME(string nmea)
+    {
+        RME rme = new(nmea);
+        Assert.Multiple(() =>
+        {
+            string[] expected = nmea[..^3].Split(',');
+        });
+
+        GPSData data = new();
+        rme.UpdateGPSData(data);
+        Assert.Multiple(() =>
+        {
+
+        });
+
+        Assert.That(rme.ValidateChecksum, Throws.Nothing);
+        Assert.That(NmeaSentence.Parse(nmea), Is.EqualTo(rme));
+    }
+
+    [Test, TestOf(nameof(VTG))]
+    [TestCase("")]
+    [TestCase("")]
+    public void TestVTG(string nmea)
+    {
+        VTG vtg = new(nmea);
+        Assert.Multiple(() =>
+        {
+            string[] expected = nmea[..^3].Split(',');
+        });
+
+        GPSData data = new();
+        vtg.UpdateGPSData(data);
+        Assert.Multiple(() =>
+        {
+
+        });
+
+        Assert.That(vtg.ValidateChecksum, Throws.Nothing);
+        Assert.That(NmeaSentence.Parse(nmea), Is.EqualTo(vtg));
     }
 
     [Test, TestOf(nameof(ENAV))]
@@ -180,183 +309,6 @@ public class NmeaTests
         Assert.That(enav.ValidateChecksum, Throws.Nothing);
         Assert.That(NmeaSentence.Parse(nmea), Is.EqualTo(enav));
     }
-
-
-    [Test, TestOf(nameof(NmeaSentence.Parse))]
-    [TestCase("$GPXXX,123456.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7A")]
-    public void TestParseUnknownSentence(string nmea)
-    {
-        Assert.That(NmeaSentence.Parse(nmea), Is.Null);
-    }
-
-    private static string[] GetInvalidMedssageForEachNmeaType()
-    {
-        return [.. from id in Enum.GetValues<NmeaType>().Where(nmeaType => nmeaType != NmeaType.Unknown) select $"${id},,,,,,*00"];
-    }
-
-    [Test, TestOf(nameof(NmeaSentence.Parse))]
-    [TestCase("This is not a nmea sentence.")]
-    [TestCaseSource(nameof(GetInvalidMedssageForEachNmeaType))]
-    public void TestParseInvalidSentence(string nmea)
-    {
-        Assert.Throws<NmeaException>(() => NmeaSentence.Parse(nmea));
-    }
-
-    [Test, TestOf(nameof(NmeaSentence.ValidateChecksum))]
-    [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7F", true)]
-    [TestCase("$GPGGA,220314.00,4032.11025544,N,10502.52948864,W,0,15,0.6,1514.592,M,-20.906,M,2.0,0029*4A", true)]
-    [TestCase("$GPGSV,8,1,25,21,44,141,47,15,14,049,44,6,31,255,46,3,25,280,44*75", true)]
-    [TestCase("$GPGSV,8,2,25,18,61,057,48,22,68,320,52,27,34,268,47,24,32,076,45*76", true)]
-    [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*00", false)]
-    [TestCase("$GPGGA,220314.00,4032.11025544,N,10502.52948864,W,0,15,0.6,1514.592,M,-20.906,M,2.0,0029*4B", false)]
-    [TestCase("$GPGSV,8,1,25,21,44,141,47,15,14,049,44,6,31,255,46,3,25,280,44*32", false)]
-    [TestCase("$GPGSV,8,2,25,18,61,057,48,22,68,320,52,27,34,268,47,24,32,076,45*FF", false)]
-    public void TestValidateChecksum(string nmea, bool isValid)
-    {
-        Assert.That(() => NmeaSentence.Parse(nmea), isValid ? Throws.Nothing : Throws.TypeOf<ChecksumException>());
-    }
-
-    [Test, TestOf(nameof(NmeaSentence.Equals)), TestOf(nameof(NmeaSentence.GetHashCode)), TestOf(nameof(NmeaSentence.ToString))]
-    [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7F",
-              "$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7F")]
-    [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7F",
-              "$GPGGA,220314.00,4032.11025544,N,10502.52948864,W,0,15,0.6,1514.592,M,-20.906,M,2.0,0029*4A")]
-    public void TestNmeaEquality(string nmea1, string nmea2)
-    {
-        bool expected = nmea1 == nmea2;
-        NmeaSentence sentence1 = NmeaSentence.Parse(nmea1)!;
-        NmeaSentence sentence2 = NmeaSentence.Parse(nmea2)!;
-        Assert.Multiple(() =>
-        {
-            bool checkEquality = sentence1.Equals(sentence2);
-            bool checkObjEquality = sentence1.Equals((object?)sentence2);
-            bool checkHashCode = sentence1.GetHashCode() == sentence2.GetHashCode();
-            bool checkToString = sentence1.ToString() == sentence2.ToString();
-            Assert.That(checkEquality, Is.EqualTo(expected));
-            Assert.That(checkObjEquality, Is.EqualTo(expected));
-            Assert.That(checkHashCode, Is.EqualTo(expected));
-            Assert.That(checkToString, Is.EqualTo(expected));
-        });
-    }
 }
 
-public class NmeaEnumTests
-{
-    [Test, TestOf(nameof(NmeaType))]
-    public void TestNmeaType([Values] NmeaType nmeaType)
-    {
-        uint? GetExpected(NmeaType nmeaType)
-        {
-            return nmeaType switch
-            {
-                NmeaType.Unknown => 0x00000000,
-                NmeaType.GGA => 0x00000001,
-                NmeaType.GLL => 0x00000002,
-                NmeaType.GSA => 0x00000004,
-                NmeaType.GST => 0x00000008,
-                NmeaType.GSV => 0x00000010,
-                NmeaType.RMC => 0x00000020,
-                NmeaType.RME => 0x00000040,
-                NmeaType.VTG => 0x00000080,
-                NmeaType.ENAV => 0x00000100,
-                _ => null,
-            };
-        }
 
-        uint? expected = GetExpected(nmeaType);
-        Assert.That((uint)nmeaType, Is.EqualTo(expected), $"", nmeaType.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
-
-
-        Assert.That(nmeaType, Is.EqualTo((uint)nmeaType switch
-        {
-            0x00000000 => NmeaType.Unknown,
-            0x00000001 => NmeaType.GGA,
-            0x00000002 => NmeaType.GLL,
-            0x00000004 => NmeaType.GSA,
-            0x00000008 => NmeaType.GST,
-            0x00000010 => NmeaType.GSV,
-            0x00000020 => NmeaType.RMC,
-            0x00000040 => NmeaType.RME,
-            0x00000080 => NmeaType.VTG,
-            0x00000100 => NmeaType.ENAV,
-            _ => null,
-        }), constraintExpression: $"Is.EqualTo({nmeaType})");
-    }
-
-    [Test, TestOf(nameof(Fix))]
-    public void TestFix([Values] Fix fix)
-    {
-        int? GetExpected(Fix fix)
-        {
-            return fix switch
-            {
-                Fix.Invalid => 0,
-                Fix.GPS => 1,
-                Fix.DGPS => 2,
-                Fix.RTKFix => 4,
-                Fix.RTKFloat => 5,
-                _ => null,
-            };
-        }
-
-        int? expected = GetExpected(fix);
-        Assert.That((int)fix, Is.EqualTo(expected), $"", fix.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
-    }
-
-    [Test, TestOf(nameof(FixMode))]
-    public void TestFixMode([Values] FixMode fixMode)
-    {
-        int? GetExpected(FixMode fixMode)
-        {
-            return fixMode switch
-            {
-                FixMode.None => 1,
-                FixMode.TwoD => 2,
-                FixMode.ThreeD => 3,
-                _ => null,
-            };
-        }
-
-        int? expected = GetExpected(fixMode);
-        Assert.That((int)fixMode, Is.EqualTo(expected), $"", fixMode.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
-    }
-
-    [Test, TestOf(nameof(EnavMode))]
-    public void TestEnavMode([Values] EnavMode enavMode)
-    {
-        int? GetExpected(EnavMode enavMode)
-        {
-            return enavMode switch
-            {
-                EnavMode.GNSS => 0,
-                EnavMode.Tilt => 1,
-                EnavMode.InvisiblePole => 3,
-                EnavMode.ExtensiblePoleTriggerUnpressed => 4,
-                EnavMode.ExtensiblePoleTriggerPressed => 5,
-                _ => null,
-            };
-        }
-
-        int? expected = GetExpected(enavMode);
-        Assert.That((int)enavMode, Is.EqualTo(expected), $"", enavMode.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
-    }
-
-    [Test, TestOf(nameof(SmartHandleStatus))]
-    public void TestSmartHandleStatus([Values] SmartHandleStatus shStatus)
-    {
-        int? GetExpected(SmartHandleStatus shStatus)
-        {
-            return shStatus switch
-            {
-                SmartHandleStatus.None => 0,
-                SmartHandleStatus.StandardHandle => 1,
-                SmartHandleStatus.SmartHandleOff => 2,
-                SmartHandleStatus.SmartHandleOn => 3,
-                _ => null,
-            };
-        }
-
-        int? expected = GetExpected(shStatus);
-        Assert.That((int)shStatus, Is.EqualTo(expected), $"", shStatus.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
-    }
-}

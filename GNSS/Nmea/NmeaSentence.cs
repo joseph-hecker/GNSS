@@ -67,7 +67,13 @@ public abstract class NmeaSentence : IEquatable<NmeaSentence>
             NmeaSentence? sentence = nmeaType switch
             {
                 NmeaType.GGA => new GGA(message),
+                NmeaType.GLL => new GLL(message),
+                NmeaType.GSA => new GSA(message),
+                NmeaType.GST => new GST(message),
                 NmeaType.GSV => new GSV(message),
+                NmeaType.RMC => new RMC(message),
+                NmeaType.RME => new RME(message),
+                NmeaType.VTG => new VTG(message),
                 NmeaType.ENAV => new ENAV(message),
 
                 _ => null,
