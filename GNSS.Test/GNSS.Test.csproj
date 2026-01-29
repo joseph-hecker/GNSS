@@ -6,7 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <RunSettingsFilePath>C:\Users\joseph.hecker\source\repos\GNSS\GNSS.Test\bin\Debug\net9.0\fine-code-coverage\coverage-tool-output\GNSS.Test-fcc-mscodecoverage-generated.runsettings</RunSettingsFilePath>
   </PropertyGroup>
 
   <ItemGroup>
