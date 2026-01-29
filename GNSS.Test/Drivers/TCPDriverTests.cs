@@ -19,7 +19,7 @@ public class TCPDriverTests
         driver.Start();
         Thread.Sleep(5_000);
         driver.Stop();
-        service.StopSendingNmea();  
+        service.StopSendingNmea();
         Assert.That(messages, Is.Not.Empty);
         TestContext.Out.WriteLine($"Received {messages.Count} NMEA messages.");
     }

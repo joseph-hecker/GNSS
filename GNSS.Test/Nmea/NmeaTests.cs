@@ -1,9 +1,4 @@
 ﻿using GNSS.Nmea;
-using GNSS.Nmea.Exceptions;
-using System.Collections;
-using System.Data;
-using System.IO;
-using System.Xml;
 
 namespace GNSS.Test.Nmea;
 

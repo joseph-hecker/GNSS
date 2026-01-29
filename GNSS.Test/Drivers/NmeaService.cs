@@ -1,5 +1,4 @@
-﻿using GNSS;
-using GNSS.Drivers;
+﻿using GNSS.Drivers;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GNSS.Test;
+﻿namespace GNSS.Test;
 
 public class GPSTests
 {
@@ -89,7 +83,8 @@ public class GPSTests
         GPS.Connect(driverType, DriverOptions[driverType]);
         GPS.StartUpdatingLocation();
         CancellationToken ct = GPS.WaitForRequirements(data => data.SatellitesInUse >= 10);
-        while (!ct.WaitHandle.WaitOne()) { }
+        while (!ct.WaitHandle.WaitOne())
+        { }
         GPSData data = await GPS.GetNextLocationAsync();
         Assert.That(data.SatellitesInUse, Is.GreaterThanOrEqualTo(10));
     }

@@ -1,5 +1,4 @@
 ﻿using GNSS.Nmea;
-using System.Net.Http.Headers;
 
 namespace GNSS;
 
@@ -50,8 +49,10 @@ public class GPSData : IEquatable<GPSData>
 
     public bool Equals(GPSData? other)
     {
-        if (other is null) return false;
-        if (ReferenceEquals(this, other)) return true;
+        if (other is null)
+            return false;
+        if (ReferenceEquals(this, other))
+            return true;
         return UTCDate == other.UTCDate &&
                UTCTime == other.UTCTime &&
                Latitude == other.Latitude &&

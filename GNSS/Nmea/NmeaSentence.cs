@@ -35,7 +35,8 @@ public abstract class NmeaSentence : IEquatable<NmeaSentence>
             checksum ^= Convert.ToByte(_message[i]);
         }
 
-        if (checksum != expected) throw new ChecksumException($"Expected checksum 0x{expected:X} ({expected}), but got 0x{checksum:X} ({checksum}). ({_message})");
+        if (checksum != expected)
+            throw new ChecksumException($"Expected checksum 0x{expected:X} ({expected}), but got 0x{checksum:X} ({checksum}). ({_message})");
     }
 
     public bool Equals(NmeaSentence? other)
