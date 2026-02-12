@@ -68,12 +68,12 @@ public class GPSTests
     [Test, TestOf(nameof(GPS.GetNextLocationAsync))]
     public async Task TestGetNextLocationAsync()
     {
-        GPSData gpsData = new();
+        Assert.ThrowsAsync<InvalidOperationException>(GPS.GetNextLocationAsync);
         DriverType driverType = DriverType.TextFile;
         GPS.Connect(driverType, DriverOptions[driverType]);
         GPS.StartUpdatingLocation();
-        GPSData newGpsData = await GPS.GetNextLocationAsync();
-        Assert.That(newGpsData, Is.Not.EqualTo(gpsData));
+        GPSData gpsData = await GPS.GetNextLocationAsync();
+        Assert.That(gpsData, Is.Not.EqualTo(new GPSData()));
     }
 
     [Test, TestOf(nameof(GPS.WaitForRequirements))]
