@@ -16,6 +16,11 @@ public static class GPS
 
     public static async Task<GPSData> GetNextLocationAsync()
     {
+        if (CurrentGPSData is null)
+        {
+            throw new InvalidOperationException($"GPS is not streaming data, call {nameof(Connect)}() and {nameof(StartUpdatingLocation)}() first.");
+        }
+
         TaskCompletionSource<GPSData> source = new();
         void SetResult(GPSData data)
         {
@@ -67,7 +72,7 @@ public static class GPS
     {
         if (Driver is null)
         {
-            throw new InvalidOperationException("GPS driver is not connected. Call Connect() first.");
+            throw new InvalidOperationException($"GPS driver is not connected. Call {nameof(Connect)}() first.");
         }
 
         CurrentGPSData = new();
