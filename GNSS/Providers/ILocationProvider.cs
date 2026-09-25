@@ -1,6 +1,6 @@
-﻿namespace GNSS.Drivers;
+﻿namespace GNSS.Providers;
 
-public interface IDriver
+public interface ILocationProvider
 {
     public delegate void OnNmeaRecievedEventHandler(string nmea);
     public event OnNmeaRecievedEventHandler? OnNmeaRecieved;

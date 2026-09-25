@@ -1,20 +1,20 @@
-﻿using GNSS.Drivers;
+﻿using GNSS.Providers;
 using GNSS.Nmea;
 using GNSS.Nmea.Exceptions;
 using System.Diagnostics;
 
 namespace GNSS;
 
-public static class GPS
+public class GPS
 {
-    private static IDriver? Driver { get; set; }
-    private static GPSData? CurrentGPSData { get; set; }
-    private static Timer? LocationTimer { get; set; }
+    private ILocationProvider? LocationProvider { get; set; }
+    private GPSData? CurrentGPSData { get; set; }
+    private Timer? LocationTimer { get; set; }
 
     public delegate void OnLocationUpdatedEventHandler(GPSData data);
-    public static event OnLocationUpdatedEventHandler? OnLocationUpdated;
+    public event OnLocationUpdatedEventHandler? OnLocationUpdated;
 
-    public static async Task<GPSData> GetNextLocationAsync()
+    public async Task<GPSData> GetNextLocationAsync()
     {
         TaskCompletionSource<GPSData> source = new();
         void SetResult(GPSData data)
@@ -27,7 +27,7 @@ public static class GPS
         return await source.Task;
     }
 
-    private static void OnNmeaRecieved(string nmea)
+    private void OnNmeaRecieved(string nmea)
     {
         try
         {
@@ -44,51 +44,51 @@ public static class GPS
         }
     }
 
-    public static void Connect(DriverType driverType, Dictionary<string, string> driverOptions)
+    public void Connect(ProviderType driverType, Dictionary<string, string> driverOptions)
     {
         Disconnect();
-        Driver = driverType switch
+        LocationProvider = driverType switch
         {
-            DriverType.TCP => new TCPDriver(driverOptions[Options.Host], int.Parse(driverOptions[Options.Port])),
-            DriverType.Bluetooth => new BluetoothDriver(driverOptions[Options.COMPort], int.Parse(driverOptions[Options.BaudRate])),
-            DriverType.TextFile => new TextFileDriver(driverOptions[Options.NmeaFile]),
+            ProviderType.TCP => new TCPProvider(driverOptions[Options.Host], int.Parse(driverOptions[Options.Port])),
+            ProviderType.Bluetooth => new BluetoothProvider(driverOptions[Options.COMPort], int.Parse(driverOptions[Options.BaudRate])),
+            ProviderType.TextFile => new TextFileProvider(driverOptions[Options.NmeaFile]),
 
             _ => throw new InvalidOperationException($"'{driverType}' GPS driver is not supported."),
         };
     }
 
-    public static void Disconnect()
+    public void Disconnect()
     {
         StopUpdatingLocation();
-        Driver = null;
+        LocationProvider = null;
     }
 
-    public static void StartUpdatingLocation(Dictionary<string, string>? ntripOptions = null)
+    public void StartUpdatingLocation(Dictionary<string, string>? ntripOptions = null)
     {
-        if (Driver is null)
+        if (LocationProvider is null)
         {
             throw new InvalidOperationException("GPS driver is not connected. Call Connect() first.");
         }
 
         CurrentGPSData = new();
-        Driver.OnNmeaRecieved += OnNmeaRecieved;
-        Driver.Start(ntripOptions);
+        LocationProvider.OnNmeaRecieved += OnNmeaRecieved;
+        LocationProvider.Start(ntripOptions);
         LocationTimer = new((state) =>
         {
             OnLocationUpdated?.Invoke(CurrentGPSData.Copy());
         }, null, 1000, 1000);
     }
 
-    public static void StopUpdatingLocation()
+    public void StopUpdatingLocation()
     {
         LocationTimer?.Dispose();
         LocationTimer = null;
-        Driver?.Stop();
-        Driver?.OnNmeaRecieved -= OnNmeaRecieved;
+        LocationProvider?.Stop();
+        LocationProvider?.OnNmeaRecieved -= OnNmeaRecieved;
         CurrentGPSData = null;
     }
 
-    public static CancellationToken WaitForRequirements(Predicate<GPSData> checkRequirements)
+    public CancellationToken WaitForRequirements(Predicate<GPSData> checkRequirements)
     {
         if (CurrentGPSData is null || checkRequirements(CurrentGPSData))
         {
@@ -110,11 +110,11 @@ public static class GPS
         return source.Token;
     }
 
-    public static CancellationToken WaitForRTKFix() => WaitForRequirements(data => data.Fix == Fix.RTKFix);
-    public static CancellationToken WaitForEstimatedAccuracy(double requiredAccuracy) => WaitForRequirements(data => data.EstimatedAccuracy <= requiredAccuracy);
+    public CancellationToken WaitForRTKFix() => WaitForRequirements(data => data.Fix == Fix.RTKFix);
+    public CancellationToken WaitForEstimatedAccuracy(double requiredAccuracy) => WaitForRequirements(data => data.EstimatedAccuracy <= requiredAccuracy);
 }
 
-public enum DriverType
+public enum ProviderType
 {
     TCP,
     Bluetooth,

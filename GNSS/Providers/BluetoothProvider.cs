@@ -1,14 +1,14 @@
 ﻿using System.IO.Ports;
 
-namespace GNSS.Drivers;
+namespace GNSS.Providers;
 
-public class BluetoothDriver : IDriver
+public class BluetoothProvider : ILocationProvider
 {
-    public event IDriver.OnNmeaRecievedEventHandler? OnNmeaRecieved;
+    public event ILocationProvider.OnNmeaRecievedEventHandler? OnNmeaRecieved;
 
     private SerialPort SerialPort { get; set; }
 
-    public BluetoothDriver(string comPort, int baudRate)
+    public BluetoothProvider(string comPort, int baudRate)
     {
         SerialPort = new SerialPort(comPort, baudRate);
     }

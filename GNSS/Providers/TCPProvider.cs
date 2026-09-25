@@ -1,17 +1,17 @@
 ﻿using System.Net.Sockets;
 using System.Text;
 
-namespace GNSS.Drivers;
+namespace GNSS.Providers;
 
-public class TCPDriver : IDriver
+public class TCPProvider : ILocationProvider
 {
-    public event IDriver.OnNmeaRecievedEventHandler? OnNmeaRecieved;
+    public event ILocationProvider.OnNmeaRecievedEventHandler? OnNmeaRecieved;
 
     private string Host { get; set; }
     private int Port { get; set; }
     private TcpClient? Client { get; set; }
 
-    public TCPDriver(string host, int port)
+    public TCPProvider(string host, int port)
     {
         Host = host;
         Port = port;

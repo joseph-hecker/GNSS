@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GNSS.Drivers;
+namespace GNSS.Providers;
 
-public class TextFileDriver : IDriver
+public class TextFileProvider : ILocationProvider
 {
-    public event IDriver.OnNmeaRecievedEventHandler? OnNmeaRecieved;
+    public event ILocationProvider.OnNmeaRecievedEventHandler? OnNmeaRecieved;
 
     private FileStream Stream { get; set; }
     private Timer? NmeaTimer { get; set; }
 
-    public TextFileDriver(string nmeaFile)
+    public TextFileProvider(string nmeaFile)
     {
         Stream = new(nmeaFile, FileMode.Open, FileAccess.Read, FileShare.Read);
         if (!SearchGGA())
