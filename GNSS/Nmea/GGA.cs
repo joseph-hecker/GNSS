@@ -35,8 +35,10 @@ public class GGA : NmeaSentence, ILocation
             AltUnits = _parts[10];
             Undulation = double.Parse(_parts[11]);
             UndulationUnits = _parts[12];
-            if (int.TryParse(_parts[13], out int age)) Age = age;
-            if (int.TryParse(_parts[14], out int stationID)) StationID = stationID;
+            if (int.TryParse(_parts[13], out int age))
+                Age = age;
+            if (int.TryParse(_parts[14], out int stationID))
+                StationID = stationID;
         }
         catch (Exception ex)
         {

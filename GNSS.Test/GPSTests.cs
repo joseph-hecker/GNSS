@@ -70,10 +70,11 @@ public class GPSTests
     {
         GPSData gpsData = new();
         ProviderType driverType = ProviderType.TextFile;
+        Assert.ThrowsAsync<InvalidOperationException>(GPS.GetNextLocationAsync);
         GPS.Connect(driverType, DriverOptions[driverType]);
         GPS.StartUpdatingLocation();
-        GPSData newGpsData = await GPS.GetNextLocationAsync();
-        Assert.That(newGpsData, Is.Not.EqualTo(gpsData));
+        GPSData gpsData = await GPS.GetNextLocationAsync();
+        Assert.That(gpsData, Is.Not.EqualTo(new GPSData()));
     }
 
     [Test, TestOf(nameof(GPS.WaitForRequirements))]
@@ -83,7 +84,8 @@ public class GPSTests
         GPS.Connect(driverType, DriverOptions[driverType]);
         GPS.StartUpdatingLocation();
         CancellationToken ct = GPS.WaitForRequirements(data => data.SatellitesInUse >= 10);
-        while (!ct.WaitHandle.WaitOne()) { }
+        while (!ct.WaitHandle.WaitOne())
+        { }
         GPSData data = await GPS.GetNextLocationAsync();
         Assert.That(data.SatellitesInUse, Is.GreaterThanOrEqualTo(10));
     }

@@ -1,4 +1,7 @@
-﻿namespace GNSS.Test;
+﻿using GNSS.Nmea;
+using System.Text;
+
+namespace GNSS.Test;
 
 public static class Util
 {
@@ -28,8 +31,8 @@ public static class Util
     /// string "INVALID" in their file names.</returns>
     public static string[] GetValidNmeaFiles()
     {
-        IEnumerable<string> txtFiles = Directory.GetFiles(Util.TestNmeaDirectory, "*.txt").Where(file => !file.Contains(INVALID_NMEA_FILE_KEYWORD));
-        IEnumerable<string> logFiles = Directory.GetFiles(Util.TestNmeaDirectory, "*.log").Where(file => !file.Contains(INVALID_NMEA_FILE_KEYWORD));
+        IEnumerable<string> txtFiles = Directory.GetFiles(TestNmeaDirectory, "*.txt").Where(file => !file.Contains(INVALID_NMEA_FILE_KEYWORD));
+        IEnumerable<string> logFiles = Directory.GetFiles(TestNmeaDirectory, "*.log").Where(file => !file.Contains(INVALID_NMEA_FILE_KEYWORD));
         return [.. txtFiles, .. logFiles];
     }
 
@@ -40,8 +43,29 @@ public static class Util
     /// string "INVALID" in their file names.</returns>
     public static string[] GetInvalidNmeaFiles()
     {
-        IEnumerable<string> txtFiles = Directory.GetFiles(Util.TestNmeaDirectory, "*.txt").Where(file => file.Contains(INVALID_NMEA_FILE_KEYWORD));
-        IEnumerable<string> logFiles = Directory.GetFiles(Util.TestNmeaDirectory, "*.log").Where(file => file.Contains(INVALID_NMEA_FILE_KEYWORD));
+        IEnumerable<string> txtFiles = Directory.GetFiles(TestNmeaDirectory, "*.txt").Where(file => file.Contains(INVALID_NMEA_FILE_KEYWORD));
+        IEnumerable<string> logFiles = Directory.GetFiles(TestNmeaDirectory, "*.log").Where(file => file.Contains(INVALID_NMEA_FILE_KEYWORD));
         return [.. txtFiles, .. logFiles];
+    }
+
+    public static string GenerateChecksum(string message)
+    {
+        if (message.StartsWith('$'))
+        {
+            message = message[1..];
+        }
+
+        byte checksum = Encoding.ASCII.GetBytes(message).Aggregate((checksum, current) => (byte)(checksum ^ current));
+        return checksum.ToString("X");
+    }
+
+    public class Tests
+    {
+        [Test, TestOf(nameof(GenerateChecksum))]
+        [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031")]
+        public void TestGenerateChecksum(string message)
+        {
+            Assert.That(() => NmeaSentence.Parse(message + $"*{GenerateChecksum(message)}"), Throws.Nothing);
+        }
     }
 }
