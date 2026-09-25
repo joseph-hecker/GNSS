@@ -1,10 +1,10 @@
-﻿using GNSS.Drivers;
+﻿using GNSS.Providers;
 
-namespace GNSS.Test.Drivers;
+namespace GNSS.Test.Providers;
 
 public class TCPDriverTests
 {
-    [Test, TestOf(nameof(TCPDriver.Start))]
+    [Test, TestOf(nameof(TCPProvider.Start))]
     public void TestStart()
     {
         NmeaService service = new(Util.GetNmeaFile("Arrow100_SBAS.txt"));
@@ -14,12 +14,12 @@ public class TCPDriverTests
         });
 
         List<string> messages = [];
-        TCPDriver driver = new(NmeaService.Host, NmeaService.Port);
+        TCPProvider driver = new(NmeaService.Host, NmeaService.Port);
         driver.OnNmeaRecieved += messages.Add;
         driver.Start();
         Thread.Sleep(5_000);
         driver.Stop();
-        service.StopSendingNmea();  
+        service.StopSendingNmea();
         Assert.That(messages, Is.Not.Empty);
         TestContext.Out.WriteLine($"Received {messages.Count} NMEA messages.");
     }

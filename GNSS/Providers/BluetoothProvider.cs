@@ -5,6 +5,7 @@ namespace GNSS.Providers;
 public class BluetoothProvider : ILocationProvider
 {
     public event ILocationProvider.OnNmeaRecievedEventHandler? OnNmeaRecieved;
+    public event ILocationProvider.OnNewLocationEventHandler? OnNewLocation = null;
 
     private SerialPort SerialPort { get; set; }
 

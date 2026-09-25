@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace GNSS.Providers;
 
 public class TextFileProvider : ILocationProvider
 {
     public event ILocationProvider.OnNmeaRecievedEventHandler? OnNmeaRecieved;
+    public event ILocationProvider.OnNewLocationEventHandler? OnNewLocation = null;
 
     private FileStream Stream { get; set; }
     private Timer? NmeaTimer { get; set; }
@@ -18,7 +15,7 @@ public class TextFileProvider : ILocationProvider
         Stream = new(nmeaFile, FileMode.Open, FileAccess.Read, FileShare.Read);
         if (!SearchGGA())
         {
-            throw new InvalidOperationException("Provided nmea file must have GGA messages for Text File Driver to function.");
+            throw new InvalidOperationException("Provided nmea file must have GGA messages for Text File provider to function.");
         }
     }
 
@@ -30,7 +27,6 @@ public class TextFileProvider : ILocationProvider
     {
         long start = Stream.Position;
         Stream.Seek(0, SeekOrigin.Begin);
-        StringBuilder sb = new();
         string messageID = string.Empty;
         while (!messageID.Contains("GGA"))
         {

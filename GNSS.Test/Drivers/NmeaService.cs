@@ -1,10 +1,9 @@
-﻿using GNSS;
-using GNSS.Drivers;
+﻿using GNSS.Providers;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace GNSS.Test.Drivers;
+namespace GNSS.Test.Providers;
 
 public class NmeaService
 {
@@ -16,7 +15,7 @@ public class NmeaService
         { GNSS.Options.Port, Port.ToString() }
     };
 
-    private TextFileDriver TextFileDriver { get; set; }
+    private TextFileProvider TextFileDriver { get; set; }
     private TcpListener Listener { get; set; }
     private TcpClient? Client { get; set; }
     private StreamWriter? Writer { get; set; }

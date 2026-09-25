@@ -1,6 +1,5 @@
 ﻿using GNSS.Nmea;
 using GNSS.Nmea.Exceptions;
-using System.Collections;
 using System.Data;
 
 namespace GNSS.Test;
@@ -23,7 +22,7 @@ public class NmeaTests
 
     private static string[] GetInvalidMedssageForEachNmeaType()
     {
-        return [..from id in Enum.GetValues<NmeaType>().Where(nmeaType => nmeaType != NmeaType.Unknown) select $"${id},,,,,,*00"];
+        return [.. from id in Enum.GetValues<NmeaType>().Where(nmeaType => nmeaType != NmeaType.Unknown) select $"${id},,,,,,*00"];
     }
 
     [SetUp]

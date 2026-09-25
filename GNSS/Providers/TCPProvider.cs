@@ -6,6 +6,7 @@ namespace GNSS.Providers;
 public class TCPProvider : ILocationProvider
 {
     public event ILocationProvider.OnNmeaRecievedEventHandler? OnNmeaRecieved;
+    public event ILocationProvider.OnNewLocationEventHandler? OnNewLocation = null;
 
     private string Host { get; set; }
     private int Port { get; set; }

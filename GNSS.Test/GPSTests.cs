@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GNSS.Test;
+﻿namespace GNSS.Test;
 
 public class GPSTests
 {
-    private static readonly Dictionary<DriverType, Dictionary<string, string>> DriverOptions = new()
+    private static readonly Dictionary<ProviderType, Dictionary<string, string>> DriverOptions = new()
     {
-        { DriverType.TCP, new()
+        { ProviderType.TCP, new()
         {
             { Options.Host, "127.0.0.1" },
             { Options.Port, "77776" }
         }},
-        { DriverType.Bluetooth, new()
+        { ProviderType.Bluetooth, new()
         {
             { Options.COMPort, "COM4" },
             { Options.BaudRate, "9600" }
         }},
-        { DriverType.TextFile, new()
+        { ProviderType.TextFile, new()
         {
             { Options.NmeaFile, Util.GetNmeaFile("Arrow100_SBAS.txt") },
         }},
@@ -33,7 +27,7 @@ public class GPSTests
     }
 
     [Test, TestOf(nameof(GPS.Connect))]
-    public void TestConnect([Values] DriverType driverType)
+    public void TestConnect([Values] ProviderType driverType)
     {
         try
         {
@@ -50,7 +44,7 @@ public class GPSTests
     public void TestStartUpdatingLocataion()
     {
         GPSData gpsData = new();
-        DriverType driverType = DriverType.TextFile;
+        ProviderType driverType = ProviderType.TextFile;
         GPS.Connect(driverType, DriverOptions[driverType]);
         GPS.StartUpdatingLocation();
         GPS.OnLocationUpdated += UpdateGPSData;
@@ -75,7 +69,7 @@ public class GPSTests
     public async Task TestGetNextLocationAsync()
     {
         GPSData gpsData = new();
-        DriverType driverType = DriverType.TextFile;
+        ProviderType driverType = ProviderType.TextFile;
         GPS.Connect(driverType, DriverOptions[driverType]);
         GPS.StartUpdatingLocation();
         GPSData newGpsData = await GPS.GetNextLocationAsync();
@@ -85,7 +79,7 @@ public class GPSTests
     [Test, TestOf(nameof(GPS.WaitForRequirements))]
     public async Task TestWaitForRequirements()
     {
-        DriverType driverType = DriverType.TextFile;
+        ProviderType driverType = ProviderType.TextFile;
         GPS.Connect(driverType, DriverOptions[driverType]);
         GPS.StartUpdatingLocation();
         CancellationToken ct = GPS.WaitForRequirements(data => data.SatellitesInUse >= 10);
@@ -97,7 +91,7 @@ public class GPSTests
     [Test, TestOf(nameof(GPS.WaitForRequirements))]
     public void TestWaitForRequirementsImmediateCancelation()
     {
-        DriverType driverType = DriverType.TextFile;
+        ProviderType driverType = ProviderType.TextFile;
         GPS.Connect(driverType, DriverOptions[driverType]);
         GPS.StartUpdatingLocation();
         CancellationToken ct = GPS.WaitForRequirements(data => true);

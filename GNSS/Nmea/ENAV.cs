@@ -4,7 +4,7 @@ namespace GNSS.Nmea;
 
 public class ENAV : NmeaSentence
 {
-    public TimeOnly Time {  get; }
+    public TimeOnly Time { get; }
     public double CompLatitude { get; }
     public double CompLongitude { get; }
     public double RawLatitude { get; }
@@ -26,7 +26,7 @@ public class ENAV : NmeaSentence
     {
         try
         {
-            
+
         }
         catch (Exception ex)
         {

@@ -1,16 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace GNSS.Providers;
 
-namespace GNSS.Providers;
-
+/// <summary>
+/// Platform-specific GPS access (permissions, Geolocation, etc.) implemented in the host app.
+/// </summary>
 public interface IInternalGPSHelper
 {
-
+    Task<bool> EnsurePermissionsAsync(CancellationToken cancellationToken = default);
+    void Start(Action<GPSLocation> onNewLocation);
+    void Stop();
 }
 
-public class InternalGPSProvider
+public class InternalGPSProvider(IInternalGPSHelper helper) : ILocationProvider
 {
+    public event ILocationProvider.OnNmeaRecievedEventHandler? OnNmeaRecieved = null;
+    public event ILocationProvider.OnNewLocationEventHandler? OnNewLocation;
+
+    public void Start(Dictionary<string, string>? ntripOptions = null)
+    {
+        helper.Start(location => OnNewLocation?.Invoke(location));
+    }
+
+    public void Stop() => helper.Stop();
 }

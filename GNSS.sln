@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36202.13
+# Visual Studio Version 18
+VisualStudioVersion = 18.10.12217.157 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNSS", "GNSS\GNSS.csproj", "{4A141C74-1780-4DED-84C1-47A29597E026}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNSS.Test", "GNSS.Test\GNSS.Test.csproj", "{52756BE0-607C-1F63-55DF-D93FA73AEA2D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNSS.MAUI", "GNSS.MAUI\GNSS.MAUI.csproj", "{5A1E8422-75EC-430C-8267-12DBF64CF4FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{52756BE0-607C-1F63-55DF-D93FA73AEA2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52756BE0-607C-1F63-55DF-D93FA73AEA2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52756BE0-607C-1F63-55DF-D93FA73AEA2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A1E8422-75EC-430C-8267-12DBF64CF4FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A1E8422-75EC-430C-8267-12DBF64CF4FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A1E8422-75EC-430C-8267-12DBF64CF4FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A1E8422-75EC-430C-8267-12DBF64CF4FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
