@@ -142,12 +142,14 @@ public enum ProviderType
     TCP,
     Bluetooth,
     TextFile,
-    InternalGps,
+    InternalGPS,
     Map,
 }
 
 public static class Options
 {
+    public const string Provider = "provider";
+
     // TCP Options
     public const string Host = "host";
     public const string Port = "port";
