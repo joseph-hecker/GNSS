@@ -1,75 +1,126 @@
-namespace GNSS.MAUI.GNSS;
+using GNSS;
+using GNSS.MAUI.GNSS;
 
-public sealed class LocationService
+namespace CartoPac_Mobile.GNSS;
+
+public class LocationService
 {
+    public static readonly Dictionary<ProviderType, string> AvailableProviders = new()
+    {
+        { ProviderType.InternalGPS, "Internal GPS" },
+        { ProviderType.Bluetooth, "Bluetooth" },
+        { ProviderType.TCP, "TCP" },
+        { ProviderType.TextFile, "Text File" }
+    };
+
     private IMapCenterSource? MapCenterSource { get; set; }
     private InternalGpsHelper InternalGPSHelper { get; } = new();
 
+    private readonly static GPS _mapGPS = new();
+    private readonly static GPS _deviceGPS = new();
+    private GPS ActiveGPS { get; set; } = _mapGPS;
+
+    public bool IsDeviceGnssActive => ReferenceEquals(ActiveGPS, _deviceGPS);
+
     public event GPS.OnLocationUpdatedEventHandler? OnLocationUpdated
     {
-        add => GPS.OnLocationUpdated += value;
-        remove => GPS.OnLocationUpdated -= value;
+        add
+        {
+            _mapGPS.OnLocationUpdated += value;
+            _deviceGPS.OnLocationUpdated += value;
+        }
+
+        remove
+        {
+            _mapGPS.OnLocationUpdated -= value;
+            _deviceGPS.OnLocationUpdated -= value;
+        }
     }
 
-    public void RegisterMapCenterSource(IMapCenterSource source) => MapCenterSource = source;
+    public void RegisterMapCenterSource(IMapCenterSource source)
+    {
+        MapCenterSource = source;
+        _mapGPS.Connect(new MapHelper(MapCenterSource.TryGetMapCenter));
+        _mapGPS.StartUpdatingLocation();
+    }
 
     public void UnregisterMapCenterSource(IMapCenterSource source)
     {
         if (ReferenceEquals(MapCenterSource, source))
         {
+            _mapGPS.Disconnect();
             MapCenterSource = null;
         }
     }
 
-    public void Connect()
+    public void ConnectDeviceGPS()
     {
         ProviderType provider;
         switch (provider = GetLocationProviderSettings(out Dictionary<string, string>? options))
         {
-            case ProviderType.Map:
-                if (MapCenterSource is null)
-                {
-                    throw new ArgumentNullException(nameof(MapCenterSource));
-                }
 
-                GPS.Connect(new MapHelper(MapCenterSource.TryGetMapCenter));
+            case ProviderType.InternalGPS:
+                _deviceGPS.Connect(InternalGPSHelper);
                 break;
 
-            case ProviderType.InternalGps:
-                GPS.Connect(InternalGPSHelper);
-                break;
-
-            default:
+            case ProviderType.Bluetooth:
+            case ProviderType.TCP:
+            case ProviderType.TextFile:
                 if (options is null)
                 {
                     throw new ArgumentNullException(nameof(options));
                 }
 
-                GPS.Connect(provider, options);
+                _deviceGPS.Connect(provider, options);
                 break;
+
+            case ProviderType.Map:
+            default:
+                throw new InvalidOperationException($"'{nameof(_deviceGPS)}' cannot use the map location provider.");
         }
     }
 
-    public void Disconnect()
+    public void DisconnectDeviceGPS()
     {
-        GPS.Disconnect();
+        _deviceGPS.Disconnect();
     }
 
     public void EnableGNSS()
     {
-        GPS.StartUpdatingLocation();
+        ActiveGPS.StopUpdatingLocation();
+        ActiveGPS = _deviceGPS;
+        ActiveGPS.StartUpdatingLocation();
     }
 
     public void DisableGNSS()
     {
-        GPS.StopUpdatingLocation();
+        ActiveGPS.StopUpdatingLocation();
+        ActiveGPS = _mapGPS;
+        ActiveGPS.StartUpdatingLocation();
     }
 
     private ProviderType GetLocationProviderSettings(out Dictionary<string, string>? providerOptions)
     {
-        providerOptions = null;
+        ProviderType provider = Enum.Parse<ProviderType>(Preferences.Get(Options.Provider, string.Empty));
+        providerOptions = provider switch
+        {
+            ProviderType.TCP => new Dictionary<string, string>
+            {
+                { Options.Host, Preferences.Get(Options.Host, string.Empty) },
+                { Options.Port, Preferences.Get(Options.Port, string.Empty) },
+            },
+            ProviderType.Bluetooth => new Dictionary<string, string>
+            {
+                { Options.COMPort, Preferences.Get(Options.COMPort, string.Empty) },
+                { Options.BaudRate, Preferences.Get(Options.BaudRate, string.Empty) },
+            },
+            ProviderType.TextFile => new Dictionary<string, string>
+            {
+                { Options.NmeaFile, Preferences.Get(Options.NmeaFile, string.Empty) },
+            },
+            _ => null
+        };
 
-        throw new NotImplementedException();
+        return provider;
     }
-
 }

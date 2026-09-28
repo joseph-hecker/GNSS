@@ -5,7 +5,7 @@
 /// </summary>
 public interface IMapHelper
 {
-    void Start(Action<GPSLocation> onLocation);
+    void Start(Action<GPSLocation> onNewLocation);
     void Stop();
 }
 

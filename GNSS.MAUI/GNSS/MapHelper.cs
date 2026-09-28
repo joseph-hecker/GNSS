@@ -5,7 +5,7 @@ namespace GNSS.MAUI.GNSS;
 /// <summary>
 /// Polls a host-supplied callback for the map view center (e.g. from <see cref="MapPage"/>).
 /// </summary>
-public sealed class MapHelper(Func<GPSLocation?> tryGetMapCenter) : IMapHelper
+public class MapHelper(Func<GPSLocation> tryGetMapCenter) : IMapHelper
 {
     private TimeSpan PollInterval { get; } = TimeSpan.FromMilliseconds(500);
     private Timer? PollTimer { get; set; }

@@ -5,9 +5,9 @@
 /// </summary>
 public interface IInternalGPSHelper
 {
-    Task<bool> EnsurePermissionsAsync(CancellationToken cancellationToken = default);
     void Start(Action<GPSLocation> onNewLocation);
     void Stop();
+    Task<bool> EnsurePermissionsAsync(CancellationToken ct = default);
 }
 
 public class InternalGPSProvider(IInternalGPSHelper helper) : ILocationProvider

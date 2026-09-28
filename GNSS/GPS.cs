@@ -45,7 +45,7 @@ public static class GPS
         catch (ChecksumException) { }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.Message);
+            //Debug.WriteLine(ex.Message);
         }
     }
 
@@ -88,7 +88,7 @@ public static class GPS
     {
         if (LocationProvider is null)
         {
-            throw new InvalidOperationException("GPS provider is not connected. Call Connect() first.");
+            throw new InvalidOperationException($"GPS provider is not connected. Call {nameof(Connect)}() first.");
         }
 
         CurrentGPSData = new();
@@ -97,7 +97,8 @@ public static class GPS
         LocationProvider?.Start(ntripOptions);
         LocationTimer = new((state) =>
         {
-            OnLocationUpdated?.Invoke(CurrentGPSData.Copy());
+            if (CurrentGPSData is not null)
+                OnLocationUpdated?.Invoke(CurrentGPSData.Copy());
         }, null, 1000, 1000);
     }
 
@@ -113,7 +114,7 @@ public static class GPS
 
     public static CancellationToken WaitForRequirements(Predicate<GPSData> checkRequirements)
     {
-        if (CurrentGPSData is null || checkRequirements(CurrentGPSData))
+        if (CurrentGPSData is null || LocationProvider is MapProvider || checkRequirements(CurrentGPSData))
         {
             return CancellationToken.None;
         }

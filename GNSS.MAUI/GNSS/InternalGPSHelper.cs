@@ -2,7 +2,7 @@ using GNSS.Providers;
 
 namespace GNSS.MAUI.GNSS;
 
-public sealed class InternalGpsHelper : IInternalGPSHelper
+public class InternalGpsHelper : IInternalGPSHelper
 {
     private TimeSpan PollInterval { get; } = TimeSpan.FromMilliseconds(1000);
     private CancellationTokenSource? Source { get; set; }
