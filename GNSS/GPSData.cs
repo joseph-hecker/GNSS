@@ -9,21 +9,34 @@ public class GPSData : IEquatable<GPSData>
     internal DateOnly UTCDate { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
     internal TimeOnly UTCTime { get; set; } = new(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second, DateTime.Now.Millisecond);
     public DateTime UTC => new(UTCDate, UTCTime);
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
-    public double Altitude { get; set; }
-    public Fix Fix { get; set; }
-    public FixMode FixMode { get; set; }
-    public double HDOP { get; set; }
-    public double VDOP { get; set; }
-    public double PDOP { get; set; }
-    public double EstimatedAccuracy { get; set; }
-    public int SatellitesInUse { get; set; }
-    public int SatellitesInView { get; set; }
-    public IEnumerable<Satellite> Satellites { get; set; } = [];
-    public int? Age { get; set; }
-    public int? StationID { get; set; }
-    public ENAV? EnavData { get; set; }
+    public double Latitude { get; internal set; }
+    public double Longitude { get; internal set; }
+    public double Altitude { get; internal set; }
+    public Fix Fix { get; internal set; }
+    public FixMode FixMode { get; internal set; }
+    public string Status { get; internal set; } = string.Empty;
+    public string NavStatus { get; internal set; } = string.Empty;
+    public double HDOP { get; internal set; }
+    public double VDOP { get; internal set; }
+    public double PDOP { get; internal set; }
+    public double EstimatedAccuracy { get; internal set; }
+    public double Speed { get; internal set; }
+    public double Course { get; internal set; }
+    public double MagneticVariation { get; internal set; }
+    public string MagneticVariationDir { get; internal set; } = string.Empty;
+    public int SatellitesInUse { get; internal set; }
+    public int SatellitesInView { get; internal set; }
+    public List<Satellite> Satellites { get; internal set; } = [];
+    public double RMSRange { get; internal set; }
+    public double MajorStd { get; internal set; }
+    public double MinorStd { get; internal set; }
+    public double MajorAngle { get; internal set; }
+    public double LatStd { get; internal set; }
+    public double LonStd { get; internal set; }
+    public double AltStd { get; internal set; }
+    public int? Age { get; internal set; }
+    public int? StationID { get; internal set; }
+    public ENAV? EnavData { get; internal set; }
 
     public GPSData Copy()
     {
@@ -42,7 +55,7 @@ public class GPSData : IEquatable<GPSData>
             EstimatedAccuracy = EstimatedAccuracy,
             SatellitesInUse = SatellitesInUse,
             SatellitesInView = SatellitesInView,
-            Satellites = Satellites.Select(s => new Satellite(s.PRN, s.Elevation, s.Azimuth, s.SNR)),
+            Satellites = [.. Satellites.Select(s => new Satellite(s.PRN, s.Elevation, s.Azimuth, s.SNR))],
             Age = Age,
             StationID = StationID,
             EnavData = EnavData,

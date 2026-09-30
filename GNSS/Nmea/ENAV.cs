@@ -5,12 +5,12 @@ namespace GNSS.Nmea;
 public class ENAV : NmeaSentence, ILocation
 {
     public TimeOnly Time { get; }
-    public double CompLatitude { get; }
-    public double CompLongitude { get; }
-    public double RawLatitude { get; }
-    public double RawLongitude { get; }
-    public double RawAltitude { get; }
-    public double CompAltitude { get; }
+    public double CompLat { get; }
+    public double CompLon { get; }
+    public double RawLat { get; }
+    public double RawLon { get; }
+    public double RawAlt { get; }
+    public double CompAlt { get; }
     public double Roll { get; }
     public double Pitch { get; }
     public double Yaw { get; }
@@ -26,8 +26,8 @@ public class ENAV : NmeaSentence, ILocation
         get
         {
             double min = -0.00005, max = 0.00005;
-            return !(min < CompLatitude && CompLatitude < max) &&
-                   !(min < CompLongitude && CompLongitude < max);
+            return !(min < CompLat && CompLat < max) &&
+                   !(min < CompLon && CompLon < max);
         }
     }
 
@@ -36,12 +36,12 @@ public class ENAV : NmeaSentence, ILocation
         try
         {
             Time = ParseTime(_parts[1]);
-            CompLatitude = double.Parse(_parts[2]);
-            CompLongitude = double.Parse(_parts[3]);
-            RawLatitude = double.Parse(_parts[4]);
-            RawLongitude = double.Parse(_parts[5]);
-            RawAltitude = double.Parse(_parts[6]);
-            CompAltitude = double.Parse(_parts[7]);
+            CompLat = double.Parse(_parts[2]);
+            CompLon = double.Parse(_parts[3]);
+            RawLat = double.Parse(_parts[4]);
+            RawLon = double.Parse(_parts[5]);
+            RawAlt = double.Parse(_parts[6]);
+            CompAlt = double.Parse(_parts[7]);
             Roll = double.Parse(_parts[8]);
             Pitch = double.Parse(_parts[9]);
             Yaw = double.Parse(_parts[10]);
@@ -60,17 +60,17 @@ public class ENAV : NmeaSentence, ILocation
 
     public double Latitude()
     {
-        return ValidCompData ? CompLatitude : RawLatitude;
+        return ValidCompData ? CompLat : RawLat;
     }
 
     public double Longitude()
     {
-        return ValidCompData ? CompLongitude : RawLongitude;
+        return ValidCompData ? CompLon : RawLon;
     }
 
     public double Altitude()
     {
-        return ValidCompData ? CompAltitude : RawAltitude;
+        return ValidCompData ? CompAlt : RawAlt;
     }
 
     public override void UpdateGPSData(GPSData data)

@@ -36,7 +36,9 @@ public abstract class NmeaSentence : IEquatable<NmeaSentence>
         }
 
         if (checksum != expected)
+        {
             throw new ChecksumException($"Expected checksum 0x{expected:X} ({expected}), but got 0x{checksum:X} ({checksum}). ({_message})");
+        }
     }
 
     public bool Equals(NmeaSentence? other)
@@ -101,5 +103,21 @@ public abstract class NmeaSentence : IEquatable<NmeaSentence>
     protected static DateOnly ParseDate(string date)
     {
         return DateOnly.ParseExact(date, "ddMMyy");
+    }
+
+    protected static Fix ParseFix(string fix)
+    {
+        return fix switch
+        {
+            "D" => Fix.DGPS,
+            "R" => Fix.RTKFix,
+            "F" => Fix.RTKFloat,
+            //"E" => Fix.DeadReckoning,
+            //"A" => Fix.Autonomous,
+            //"P" => Fix.Precise,
+            //"M" => Fix.Manual,
+            //"S" => Fix.Simulated,
+            "N" or _ => Fix.Invalid,
+        };
     }
 }

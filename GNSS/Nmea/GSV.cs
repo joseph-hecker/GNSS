@@ -52,7 +52,7 @@ public class GSV : NmeaSentence
         if (MessageNumber == TotalMessages)
         {
             data.SatellitesInView = CompleteSentence[0].SatellitesInView;
-            data.Satellites = CompleteSentence.SelectMany(gsv => gsv.Satellites);
+            data.Satellites = [.. CompleteSentence.SelectMany(gsv => gsv.Satellites)];
         }
     }
 }

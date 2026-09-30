@@ -4,11 +4,27 @@ namespace GNSS.Nmea;
 
 public class GST : NmeaSentence
 {
+    public TimeOnly Time { get; }
+    public double RMSRange { get; }
+    public double MajorStd { get; }
+    public double MinorStd { get; }
+    public double MajorAngle { get; }
+    public double LatStd { get; }
+    public double LonStd { get; }
+    public double AltStd { get; }
+
     public GST(string message) : base(message)
     {
         try
         {
-            throw new NotImplementedException();
+            Time = ParseTime(_parts[1]);
+            RMSRange = double.Parse(_parts[2]);
+            MajorStd = double.Parse(_parts[3]);
+            MinorStd = double.Parse(_parts[4]);
+            MajorAngle = double.Parse(_parts[5]);
+            LatStd = double.Parse(_parts[6]);
+            LonStd = double.Parse(_parts[7]);
+            AltStd = double.Parse(_parts[8]);
         }
         catch (Exception ex)
         {
@@ -18,6 +34,13 @@ public class GST : NmeaSentence
 
     public override void UpdateGPSData(GPSData data)
     {
-        throw new NotImplementedException();
+        data.UTCTime = Time;
+        data.RMSRange = RMSRange;
+        data.MajorStd = MajorStd;
+        data.MinorStd = MinorStd;
+        data.MajorAngle = MajorAngle;
+        data.LatStd = LatStd;
+        data.LonStd = LonStd;
+        data.AltStd = AltStd;
     }
 }
