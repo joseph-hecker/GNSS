@@ -68,7 +68,6 @@ public class GPSTests
     [Test, TestOf(nameof(GPS.GetNextLocationAsync))]
     public async Task TestGetNextLocationAsync()
     {
-        GPSData gpsData = new();
         ProviderType driverType = ProviderType.TextFile;
         Assert.ThrowsAsync<InvalidOperationException>(GPS.GetNextLocationAsync);
         GPS.Connect(driverType, DriverOptions[driverType]);

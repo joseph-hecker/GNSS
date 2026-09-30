@@ -12,7 +12,7 @@ public class VTG : NmeaSentence
     public string SpeedKnotsUnits { get; }
     public double SpeedKMH { get; }
     public string SpeedKMHUnits { get; }
-    public Fix Fix { get; }
+    public PositionMode PositionMode { get; }
 
     public VTG(string message) : base(message)
     {
@@ -26,7 +26,7 @@ public class VTG : NmeaSentence
             SpeedKnotsUnits = _parts[6];
             SpeedKMH = double.Parse(_parts[7]);
             SpeedKMHUnits = _parts[8];
-            Fix = ParseFix(_parts[9]);
+            PositionMode = ParsePositionMode(_parts[9]);
         }
         catch (Exception ex)
         {
@@ -38,6 +38,6 @@ public class VTG : NmeaSentence
     {
         data.Course = CourseTrue;
         data.Speed = SpeedKnots;
-        data.Fix = Fix;
+        data.PositionMode = PositionMode;
     }
 }

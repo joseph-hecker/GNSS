@@ -10,6 +10,7 @@ public static class GPS
     private static ILocationProvider? LocationProvider { get; set; }
     private static GPSData? CurrentGPSData { get; set; }
     private static Timer? LocationTimer { get; set; }
+    private static GSVAccumulator? GSVAccumulator { get; set; }
 
     public delegate void OnLocationUpdatedEventHandler(GPSData data);
     public static event OnLocationUpdatedEventHandler? OnLocationUpdated;
@@ -32,14 +33,30 @@ public static class GPS
         return await source.Task;
     }
 
+    private static void ApplyLocationUpdate(ILocationInfo info)
+    {
+        if (CurrentGPSData is null)
+        {
+            return;
+        }
+
+        if (info is GSV gsv)
+        {
+            GSVAccumulator?.Apply(gsv, CurrentGPSData);
+            return;
+        }
+
+        info.UpdateGPSData(CurrentGPSData);
+    }
+
     private static void OnNmeaRecieved(string nmea)
     {
         try
         {
             NmeaSentence? sentence = NmeaSentence.Parse(nmea);
-            if (sentence is not null && CurrentGPSData is not null)
+            if (sentence is not null)
             {
-                sentence.UpdateGPSData(CurrentGPSData);
+                ApplyLocationUpdate(sentence);
             }
         }
         catch (ChecksumException) { }
@@ -49,13 +66,7 @@ public static class GPS
         }
     }
 
-    private static void OnNewLocation(GPSLocation location)
-    {
-        if (CurrentGPSData is not null)
-        {
-            location.UpdateGPSData(CurrentGPSData!);
-        }
-    }
+    private static void OnNewLocation(GPSLocation location) => ApplyLocationUpdate(location);
 
     private static void Connect(ILocationProvider provider)
     {
@@ -92,6 +103,7 @@ public static class GPS
         }
 
         CurrentGPSData = new();
+        GSVAccumulator = new();
         LocationProvider?.OnNmeaRecieved += OnNmeaRecieved;
         LocationProvider?.OnNewLocation += OnNewLocation;
         LocationProvider?.Start(ntripOptions);
@@ -109,6 +121,7 @@ public static class GPS
         LocationProvider?.Stop();
         LocationProvider?.OnNmeaRecieved -= OnNmeaRecieved;
         LocationProvider?.OnNewLocation -= OnNewLocation;
+        GSVAccumulator = null;
         CurrentGPSData = null;
     }
 
@@ -134,7 +147,7 @@ public static class GPS
         return source.Token;
     }
 
-    public static CancellationToken WaitForRTKFix() => WaitForRequirements(data => data.Fix == Fix.RTKFix);
+    public static CancellationToken WaitForRTKFix() => WaitForRequirements(data => data.FixQuality == FixQuality.RTKFix);
     public static CancellationToken WaitForEstimatedAccuracy(double requiredAccuracy) => WaitForRequirements(data => data.EstimatedAccuracy <= requiredAccuracy);
 }
 

@@ -42,5 +42,6 @@ public class GST : NmeaSentence
         data.LatStd = LatStd;
         data.LonStd = LonStd;
         data.AltStd = AltStd;
+        data.EstimatedAccuracy = Math.Sqrt(LatStd * LatStd + LonStd * LonStd);
     }
 }

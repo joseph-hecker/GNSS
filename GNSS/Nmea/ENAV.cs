@@ -15,7 +15,7 @@ public class ENAV : NmeaSentence, ILocation
     public double Pitch { get; }
     public double Yaw { get; }
     public double PositionQuality { get; }
-    public Fix RawFix { get; }
+    public FixQuality RawFix { get; }
     public int AntennaHeight { get; }
     public int LidarStrength { get; }
     public EnavMode EnavMode { get; }
@@ -46,7 +46,7 @@ public class ENAV : NmeaSentence, ILocation
             Pitch = double.Parse(_parts[9]);
             Yaw = double.Parse(_parts[10]);
             PositionQuality = double.Parse(_parts[11]);
-            RawFix = Enum.Parse<Fix>(_parts[17]);
+            RawFix = Enum.Parse<FixQuality>(_parts[17]);
             AntennaHeight = int.Parse(_parts[20]);
             LidarStrength = int.Parse(_parts[21]);
             EnavMode = Enum.Parse<EnavMode>(_parts[22]);
@@ -79,7 +79,7 @@ public class ENAV : NmeaSentence, ILocation
         data.Latitude = Latitude();
         data.Longitude = Longitude();
         data.Altitude = Altitude();
-        data.Fix = RawFix;
+        data.FixQuality = RawFix;
         data.EstimatedAccuracy = PositionQuality;
         data.EnavData = this;
     }

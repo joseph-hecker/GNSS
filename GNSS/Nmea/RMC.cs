@@ -15,7 +15,7 @@ public class RMC : NmeaSentence, ILocation
     public DateOnly Date { get; }
     public double MagneticVariation { get; }
     public string MagneticVariationDir { get; }
-    public Fix Fix { get; }
+    public PositionMode PositionMode { get; }
     public string NavStatus { get; }
 
     public RMC(string message) : base(message)
@@ -33,7 +33,7 @@ public class RMC : NmeaSentence, ILocation
             Date = ParseDate(_parts[9]);
             MagneticVariation = double.Parse(_parts[10]);
             MagneticVariationDir = _parts[11];
-            Fix = ParseFix(_parts[12]);
+            PositionMode = ParsePositionMode(_parts[12]);
             NavStatus = _parts[13];
         }
         catch (Exception ex)
@@ -66,7 +66,7 @@ public class RMC : NmeaSentence, ILocation
         data.UTCDate = Date;
         data.Latitude = Latitude();
         data.Longitude = Longitude();
-        data.Fix = Fix;
+        data.PositionMode = PositionMode;
         data.Status = Status;
         data.NavStatus = NavStatus;
         data.Speed = Speed;

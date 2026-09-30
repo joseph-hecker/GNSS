@@ -34,6 +34,6 @@ public class RME : NmeaSentence
 
     public override void UpdateGPSData(GPSData data)
     {
-        throw new NotImplementedException();
+        data.EstimatedAccuracy = HorizontalPositionError;
     }
 }

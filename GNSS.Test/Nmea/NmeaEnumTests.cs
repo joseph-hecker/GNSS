@@ -29,24 +29,49 @@ public class NmeaEnumTests
         Assert.That((uint)nmeaType, Is.EqualTo(expected), $"", nmeaType.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
     }
 
-    [Test, TestOf(nameof(Fix))]
-    public void TestFix([Values] Fix fix)
+    [Test, TestOf(nameof(FixQuality))]
+    public void TestFixQuality([Values] FixQuality quality)
     {
-        int? GetExpected(Fix fix)
+        int? GetExpected(FixQuality quality)
         {
-            return fix switch
+            return quality switch
             {
-                Fix.Invalid => 0,
-                Fix.GPS => 1,
-                Fix.DGPS => 2,
-                Fix.RTKFix => 4,
-                Fix.RTKFloat => 5,
+                FixQuality.Invalid => 0,
+                FixQuality.GPS => 1,
+                FixQuality.DGPS => 2,
+                FixQuality.PPS => 3,
+                FixQuality.RTKFix => 4,
+                FixQuality.RTKFloat => 5,
+                FixQuality.Estimated => 6,
+                FixQuality.Manual => 7,
+                FixQuality.Simulation => 8,
                 _ => null,
             };
         }
 
-        int? expected = GetExpected(fix);
-        Assert.That((int)fix, Is.EqualTo(expected), $"", fix.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
+        int? expected = GetExpected(quality);
+        Assert.That((int)quality, Is.EqualTo(expected), $"", quality.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
+    }
+
+    [Test, TestOf(nameof(PositionMode))]
+    public void TestPositionMode([Values] PositionMode positionMode)
+    {
+        int? GetExpected(PositionMode positionMode)
+        {
+            return positionMode switch
+            {
+                PositionMode.Invalid => 0,
+                PositionMode.Autonomous => 1,
+                PositionMode.Differential => 2,
+                PositionMode.Estimated => 3,
+                PositionMode.Manual => 4,
+                PositionMode.Simulated => 5,
+                _ => null,
+            };
+        }
+
+        int? expected = GetExpected(positionMode);
+        Assert.That((int)positionMode, Is.EqualTo(expected), $"", positionMode.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
     }
 
     [Test, TestOf(nameof(FixMode))]
