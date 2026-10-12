@@ -4,8 +4,7 @@ namespace GNSS.Providers;
 
 public class BluetoothProvider : ILocationProvider
 {
-    public event ILocationProvider.OnNmeaRecievedEventHandler? OnNmeaRecieved;
-    public event ILocationProvider.OnNewLocationEventHandler? OnNewLocation = null;
+    public event EventHandler<object>? OnNewGPSData;
 
     private SerialPort SerialPort { get; set; }
 
@@ -19,7 +18,7 @@ public class BluetoothProvider : ILocationProvider
         string data = SerialPort.ReadLine();
         if (data.StartsWith('$'))
         {
-            OnNmeaRecieved?.Invoke(data);
+            OnNewGPSData?.Invoke(this, data);
         }
     }
 

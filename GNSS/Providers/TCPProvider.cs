@@ -5,8 +5,7 @@ namespace GNSS.Providers;
 
 public class TCPProvider : ILocationProvider
 {
-    public event ILocationProvider.OnNmeaRecievedEventHandler? OnNmeaRecieved;
-    public event ILocationProvider.OnNewLocationEventHandler? OnNewLocation = null;
+    public event EventHandler<object>? OnNewGPSData;
 
     private string Host { get; set; }
     private int Port { get; set; }
@@ -32,7 +31,7 @@ public class TCPProvider : ILocationProvider
                     string? data = reader.ReadLine();
                     if (data is not null && data.StartsWith('$'))
                     {
-                        OnNmeaRecieved?.Invoke(data);
+                        OnNewGPSData?.Invoke(this, data);
                     }
                 }
             }

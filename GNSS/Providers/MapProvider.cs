@@ -11,12 +11,11 @@ public interface IMapHelper
 
 public class MapProvider(IMapHelper helper) : ILocationProvider
 {
-    public event ILocationProvider.OnNmeaRecievedEventHandler? OnNmeaRecieved = null;
-    public event ILocationProvider.OnNewLocationEventHandler? OnNewLocation;
+    public event EventHandler<object>? OnNewGPSData;
 
     public void Start(Dictionary<string, string>? ntripOptions = null)
     {
-        helper.Start(location => OnNewLocation?.Invoke(location));
+        helper.Start(location => OnNewGPSData?.Invoke(this, location));
     }
 
     public void Stop() => helper.Stop();

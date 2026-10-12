@@ -4,8 +4,7 @@ namespace GNSS.Providers;
 
 public class TextFileProvider : ILocationProvider
 {
-    public event ILocationProvider.OnNmeaRecievedEventHandler? OnNmeaRecieved;
-    public event ILocationProvider.OnNewLocationEventHandler? OnNewLocation = null;
+    public event EventHandler<object>? OnNewGPSData;
 
     private FileStream Stream { get; set; }
     private Timer? NmeaTimer { get; set; }
@@ -141,7 +140,7 @@ public class TextFileProvider : ILocationProvider
             string[] nmeaMessages = ConsumeNextChunk();
             foreach (var message in nmeaMessages)
             {
-                OnNmeaRecieved?.Invoke(message);
+                OnNewGPSData?.Invoke(this, message);
             }
         }, null, 0, 1000);
     }

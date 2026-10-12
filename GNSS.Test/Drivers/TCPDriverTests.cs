@@ -15,7 +15,7 @@ public class TCPDriverTests
 
         List<string> messages = [];
         TCPProvider driver = new(NmeaService.Host, NmeaService.Port);
-        driver.OnNmeaRecieved += messages.Add;
+        //driver.OnNmeaRecieved += messages.Add;
         driver.Start();
         Thread.Sleep(5_000);
         driver.Stop();

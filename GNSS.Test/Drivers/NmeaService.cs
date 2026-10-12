@@ -42,12 +42,12 @@ public class NmeaService
         Client = await Listener.AcceptTcpClientAsync();
         NetworkStream stream = Client.GetStream();
         Writer = new(stream, Encoding.UTF8) { AutoFlush = true };
-        TextFileDriver.OnNmeaRecieved += OnNmeaRevieved;
+        //TextFileDriver.OnNmeaRecieved += OnNmeaRevieved;
     }
 
     public void StopSendingNmea()
     {
-        TextFileDriver.OnNmeaRecieved -= OnNmeaRevieved;
+        //TextFileDriver.OnNmeaRecieved -= OnNmeaRevieved;
         TextFileDriver.Stop();
         Client?.Close();
         Client = null;

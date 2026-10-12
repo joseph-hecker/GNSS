@@ -35,20 +35,25 @@ public class GPS(ILogger<GPS>? logger = null)
         return await source.Task;
     }
 
-    private void ApplyLocationUpdate(ILocationInfo info)
+    /// <summary>
+    /// Called when an <see cref="ILocationProvider"/> recieves a new piece of GPS data.
+    /// </summary>
+    /// <param name="sender">The <see cref="ILocationProvider"/> that recieved the GPS data.</param>
+    /// <param name="data">The nmea <see langword="string"/> or <see cref="GPSLocation"/> with the GPS data.</param>
+    private void OnNewGPSData(object? sender, object data)
     {
-        if (CurrentGPSData is null)
+        if (data is string nmea)
         {
-            return;
+            OnNmeaRecieved(nmea);
         }
-
-        if (info is GSV gsv)
+        else if (data is GPSLocation location)
         {
-            GSVAccumulator?.Apply(gsv, CurrentGPSData);
-            return;
+            OnNewLocation(location);
         }
-
-        info.UpdateGPSData(CurrentGPSData);
+        else
+        {
+            Logger?.LogWarning("Could not read GPS data of type `{dataType}`.", data.GetType());
+        }
     }
 
     private void OnNmeaRecieved(string nmea)
@@ -56,9 +61,17 @@ public class GPS(ILogger<GPS>? logger = null)
         try
         {
             NmeaSentence? sentence = NmeaSentence.Parse(nmea);
-            if (sentence is not null)
+            if (sentence is not null && CurrentGPSData is not null)
             {
-                ApplyLocationUpdate(sentence);
+                if (sentence is GSV gsv)
+                {
+                    GSVAccumulator?.Apply(gsv, CurrentGPSData);
+                }
+                else
+                {
+                    sentence.UpdateGPSData(CurrentGPSData); ;
+                }
+
                 Logger?.LogInformation("{nmea}", sentence.ToString());
             }
         }
@@ -75,9 +88,9 @@ public class GPS(ILogger<GPS>? logger = null)
 
     private void OnNewLocation(GPSLocation location)
     {
-        ApplyLocationUpdate(location);
         if (CurrentGPSData is not null)
         {
+            location.UpdateGPSData(CurrentGPSData);
             OnLocationUpdated?.Invoke(CurrentGPSData.Copy());
         }
     }
@@ -121,8 +134,7 @@ public class GPS(ILogger<GPS>? logger = null)
 
         CurrentGPSData = new();
         GSVAccumulator = new();
-        LocationProvider?.OnNmeaRecieved += OnNmeaRecieved;
-        LocationProvider?.OnNewLocation += OnNewLocation;
+        LocationProvider?.OnNewGPSData += OnNewGPSData;
         LocationProvider?.Start(ntripOptions);
         LocationTimer = new((state) =>
         {
@@ -137,9 +149,8 @@ public class GPS(ILogger<GPS>? logger = null)
     {
         LocationTimer?.Dispose();
         LocationTimer = null;
+        LocationProvider?.OnNewGPSData -= OnNewGPSData;
         LocationProvider?.Stop();
-        LocationProvider?.OnNmeaRecieved -= OnNmeaRecieved;
-        LocationProvider?.OnNewLocation -= OnNewLocation;
         GSVAccumulator = null;
         CurrentGPSData = null;
     }

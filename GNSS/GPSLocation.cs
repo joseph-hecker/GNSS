@@ -2,9 +2,6 @@ using GNSS.Nmea;
 
 namespace GNSS;
 
-/// <summary>
-/// A sparse position patch from a non-NMEA source.
-/// </summary>
 public readonly record struct GPSLocation(
     double Latitude,
     double Longitude,

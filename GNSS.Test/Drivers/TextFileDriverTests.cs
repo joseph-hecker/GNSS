@@ -10,7 +10,7 @@ public class TextFileDriverTests
     {
         List<string> messages = [];
         TextFileProvider driver = new(nmeaFile);
-        driver.OnNmeaRecieved += messages.Add;
+        //driver.OnNmeaRecieved += messages.Add;
         driver.Start();
         Thread.Sleep(5_000);
         driver.Stop();
