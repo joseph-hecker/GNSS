@@ -10,7 +10,7 @@ public class GLL : NmeaSentence, ILocation
     public string LonDir { get; }
     public TimeOnly Time { get; }
     public string Status { get; }
-    public Fix Fix { get; }
+    public PositionMode PositionMode { get; }
 
     public GLL(string message) : base(message)
     {
@@ -22,11 +22,11 @@ public class GLL : NmeaSentence, ILocation
             LonDir = _parts[4];
             Time = ParseTime(_parts[5]);
             Status = _parts[6];
-            Fix = ParseFix(_parts[7]);
+            PositionMode = ParsePositionMode(_parts[7]);
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing GLL message. ({_message})", ex);
+            throw new NmeaException($"Error parsing GLL message.", ex, message);
         }
     }
 
@@ -53,7 +53,7 @@ public class GLL : NmeaSentence, ILocation
         data.UTCTime = Time;
         data.Latitude = Latitude();
         data.Longitude = Longitude();
-        data.Fix = Fix;
+        data.PositionMode = PositionMode;
         data.Status = Status;
     }
 }

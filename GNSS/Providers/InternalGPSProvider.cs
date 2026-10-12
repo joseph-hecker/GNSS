@@ -1,8 +1,5 @@
 ﻿namespace GNSS.Providers;
 
-/// <summary>
-/// Platform-specific GPS access (permissions, Geolocation, etc.) implemented in the host app.
-/// </summary>
 public interface IInternalGPSHelper
 {
     void Start(Action<GPSLocation> onNewLocation);

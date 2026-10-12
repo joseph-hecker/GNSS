@@ -9,7 +9,7 @@ public class GGA : NmeaSentence, ILocation
     public string LatDir { get; }
     public string Lon { get; }
     public string LonDir { get; }
-    public Fix Fix { get; }
+    public FixQuality FixQuality { get; }
     public int SatsUsed { get; }
     public double Hdop { get; }
     public double Alt { get; }
@@ -28,7 +28,7 @@ public class GGA : NmeaSentence, ILocation
             LatDir = _parts[3];
             Lon = _parts[4];
             LonDir = _parts[5];
-            Fix = (Fix)int.Parse(_parts[6]);
+            FixQuality = (FixQuality)int.Parse(_parts[6]);
             SatsUsed = int.Parse(_parts[7]);
             Hdop = double.Parse(_parts[8]);
             Alt = double.Parse(_parts[9]);
@@ -42,7 +42,7 @@ public class GGA : NmeaSentence, ILocation
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing GGA message. ({_message})", ex);
+            throw new NmeaException($"Error parsing GGA message.", message);
         }
     }
 
@@ -70,7 +70,7 @@ public class GGA : NmeaSentence, ILocation
         data.Latitude = Latitude();
         data.Longitude = Longitude();
         data.Altitude = Alt;
-        data.Fix = Fix;
+        data.FixQuality = FixQuality;
         data.HDOP = Hdop;
         data.SatellitesInUse = SatsUsed;
         data.Age = Age;

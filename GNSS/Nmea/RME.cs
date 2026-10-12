@@ -28,12 +28,12 @@ public class RME : NmeaSentence
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing RME message. ({_message})", ex);
+            throw new NmeaException($"Error parsing RME message.", ex, message);
         }
     }
 
     public override void UpdateGPSData(GPSData data)
     {
-        throw new NotImplementedException();
+        data.EstimatedAccuracy = HorizontalPositionError;
     }
 }

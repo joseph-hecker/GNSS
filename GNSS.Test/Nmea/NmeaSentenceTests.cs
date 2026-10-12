@@ -3,6 +3,7 @@ using GNSS.Nmea.Exceptions;
 
 namespace GNSS.Test.Nmea;
 
+[TestFixture, TestOf(nameof(NmeaSentence))]
 public class NmeaSentenceTests
 {
     private static string[] GetInvalidMedssageForEachNmeaType()

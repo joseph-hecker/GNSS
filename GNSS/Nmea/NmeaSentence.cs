@@ -2,7 +2,7 @@
 
 namespace GNSS.Nmea;
 
-public abstract class NmeaSentence : IEquatable<NmeaSentence>
+public abstract class NmeaSentence : ILocationInfo, IEquatable<NmeaSentence>
 {
     protected readonly string _message;
     protected readonly string[] _parts;
@@ -19,7 +19,7 @@ public abstract class NmeaSentence : IEquatable<NmeaSentence>
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing NMEA message. ({_message})", ex);
+            throw new NmeaException($"Error parsing NMEA message.", ex, message);
         }
     }
 
@@ -37,7 +37,7 @@ public abstract class NmeaSentence : IEquatable<NmeaSentence>
 
         if (checksum != expected)
         {
-            throw new ChecksumException($"Expected checksum 0x{expected:X} ({expected}), but got 0x{checksum:X} ({checksum}). ({_message})");
+            throw new ChecksumException($"Expected checksum 0x{expected:X} ({expected}), but got 0x{checksum:X} ({checksum}).", _message);
         }
     }
 
@@ -91,7 +91,7 @@ public abstract class NmeaSentence : IEquatable<NmeaSentence>
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing NMEA message. ({message.Replace("\r\n", "")})", ex);
+            throw new NmeaException($"Error parsing NMEA message.", ex, message);
         }
     }
 
@@ -105,19 +105,16 @@ public abstract class NmeaSentence : IEquatable<NmeaSentence>
         return DateOnly.ParseExact(date, "ddMMyy");
     }
 
-    protected static Fix ParseFix(string fix)
+    protected static PositionMode ParsePositionMode(string mode)
     {
-        return fix switch
+        return mode switch
         {
-            "D" => Fix.DGPS,
-            "R" => Fix.RTKFix,
-            "F" => Fix.RTKFloat,
-            //"E" => Fix.DeadReckoning,
-            //"A" => Fix.Autonomous,
-            //"P" => Fix.Precise,
-            //"M" => Fix.Manual,
-            //"S" => Fix.Simulated,
-            "N" or _ => Fix.Invalid,
+            "A" => PositionMode.Autonomous,
+            "D" => PositionMode.Differential,
+            "E" => PositionMode.Estimated,
+            "M" => PositionMode.Manual,
+            "S" => PositionMode.Simulated,
+            "N" or _ => PositionMode.Invalid,
         };
     }
 }

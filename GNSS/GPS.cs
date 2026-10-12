@@ -1,7 +1,7 @@
 ﻿using GNSS.Nmea;
 using GNSS.Nmea.Exceptions;
 using GNSS.Providers;
-using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace GNSS;
 
@@ -10,9 +10,12 @@ public static class GPS
     private static ILocationProvider? LocationProvider { get; set; }
     private static GPSData? CurrentGPSData { get; set; }
     private static Timer? LocationTimer { get; set; }
+    private static GSVAccumulator? GSVAccumulator { get; set; }
 
     public delegate void OnLocationUpdatedEventHandler(GPSData data);
     public static event OnLocationUpdatedEventHandler? OnLocationUpdated;
+
+    public static ILogger? Logger { get; set; }
 
     public static async Task<GPSData> GetNextLocationAsync()
     {
@@ -32,28 +35,50 @@ public static class GPS
         return await source.Task;
     }
 
+    private static void ApplyLocationUpdate(ILocationInfo info)
+    {
+        if (CurrentGPSData is null)
+        {
+            return;
+        }
+
+        if (info is GSV gsv)
+        {
+            GSVAccumulator?.Apply(gsv, CurrentGPSData);
+            return;
+        }
+
+        info.UpdateGPSData(CurrentGPSData);
+    }
+
     private static void OnNmeaRecieved(string nmea)
     {
         try
         {
             NmeaSentence? sentence = NmeaSentence.Parse(nmea);
-            if (sentence is not null && CurrentGPSData is not null)
+            if (sentence is not null)
             {
-                sentence.UpdateGPSData(CurrentGPSData);
+                ApplyLocationUpdate(sentence);
+                Logger?.LogInformation("{nmea}", sentence.ToString());
             }
         }
         catch (ChecksumException) { }
+        catch (NmeaException ex)
+        {
+            Logger?.LogWarning(ex, "{message} ({nmea})", ex.Message, ex.Nmea);
+        }
         catch (Exception ex)
         {
-            //Debug.WriteLine(ex.Message);
+            Logger?.LogWarning(ex, "{message}", ex.Message);
         }
     }
 
     private static void OnNewLocation(GPSLocation location)
     {
+        ApplyLocationUpdate(location);
         if (CurrentGPSData is not null)
         {
-            location.UpdateGPSData(CurrentGPSData!);
+            OnLocationUpdated?.Invoke(CurrentGPSData.Copy());
         }
     }
 
@@ -61,6 +86,7 @@ public static class GPS
     {
         Disconnect();
         LocationProvider = provider;
+        Logger?.LogInformation("GPS connected to {provider} provider.", provider.GetType().Name);
     }
 
     public static void Connect(ProviderType providerType, Dictionary<string, string> providerOptions)
@@ -92,13 +118,16 @@ public static class GPS
         }
 
         CurrentGPSData = new();
+        GSVAccumulator = new();
         LocationProvider?.OnNmeaRecieved += OnNmeaRecieved;
         LocationProvider?.OnNewLocation += OnNewLocation;
         LocationProvider?.Start(ntripOptions);
         LocationTimer = new((state) =>
         {
             if (CurrentGPSData is not null)
+            {
                 OnLocationUpdated?.Invoke(CurrentGPSData.Copy());
+            }
         }, null, 1000, 1000);
     }
 
@@ -109,6 +138,7 @@ public static class GPS
         LocationProvider?.Stop();
         LocationProvider?.OnNmeaRecieved -= OnNmeaRecieved;
         LocationProvider?.OnNewLocation -= OnNewLocation;
+        GSVAccumulator = null;
         CurrentGPSData = null;
     }
 
@@ -134,8 +164,9 @@ public static class GPS
         return source.Token;
     }
 
-    public static CancellationToken WaitForRTKFix() => WaitForRequirements(data => data.Fix == Fix.RTKFix);
+    public static CancellationToken WaitForRTKFix() => WaitForRequirements(data => data.FixQuality == FixQuality.RTKFix);
     public static CancellationToken WaitForEstimatedAccuracy(double requiredAccuracy) => WaitForRequirements(data => data.EstimatedAccuracy <= requiredAccuracy);
+    public static CancellationToken WaitForSkadiTriggerPressed() => WaitForRequirements(data => data.EnavData?.EnavMode == EnavMode.ExtensiblePoleTriggerPressed);
 }
 
 public enum ProviderType

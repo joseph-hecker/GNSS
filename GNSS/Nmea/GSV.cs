@@ -2,10 +2,31 @@
 
 namespace GNSS.Nmea;
 
+public sealed class GSVAccumulator
+{
+    private GSV?[]? Parts { get; set; }
+
+    private bool IsComplete() => Parts?.All(part => part is not null) ?? false;
+
+    public void Apply(GSV gsv, GPSData data)
+    {
+        if (gsv.MessageNumber == 1 || Parts is null || Parts.Length != gsv.TotalMessages)
+        {
+            Parts = new GSV[gsv.TotalMessages];
+        }
+
+        Parts[gsv.MessageNumber - 1] = gsv;
+        if (IsComplete())
+        {
+            data.SatellitesInView = Parts[0]!.SatellitesInView;
+            data.Satellites = [.. Parts.SelectMany(part => part!.Satellites)];
+            Parts = null;
+        }
+    }
+}
+
 public class GSV : NmeaSentence
 {
-    private static GSV[] CompleteSentence { get; set; } = [];
-
     public int TotalMessages { get; }
     public int MessageNumber { get; }
     public int SatellitesInView { get; }
@@ -33,26 +54,12 @@ public class GSV : NmeaSentence
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing GSV message. ({_message})", ex);
+            throw new NmeaException($"Error parsing GSV message.", ex, message);
         }
     }
 
     public override void UpdateGPSData(GPSData data)
     {
-        if (MessageNumber == 1)
-        {
-            CompleteSentence = new GSV[TotalMessages];
-            CompleteSentence[0] = this;
-        }
-        else
-        {
-            CompleteSentence[MessageNumber - 1] = this;
-        }
-
-        if (MessageNumber == TotalMessages)
-        {
-            data.SatellitesInView = CompleteSentence[0].SatellitesInView;
-            data.Satellites = [.. CompleteSentence.SelectMany(gsv => gsv.Satellites)];
-        }
+        throw new InvalidOperationException($"GSV sentences must be merged with {nameof(GSVAccumulator)}.{nameof(GSVAccumulator.Apply)}.");
     }
 }

@@ -28,7 +28,7 @@ public class GST : NmeaSentence
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing GST message. ({_message})", ex);
+            throw new NmeaException($"Error parsing GST message.", ex, message);
         }
     }
 
@@ -42,5 +42,6 @@ public class GST : NmeaSentence
         data.LatStd = LatStd;
         data.LonStd = LonStd;
         data.AltStd = AltStd;
+        data.EstimatedAccuracy = Math.Sqrt(LatStd * LatStd + LonStd * LonStd);
     }
 }

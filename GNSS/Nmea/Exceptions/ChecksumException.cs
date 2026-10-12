@@ -2,7 +2,7 @@
 
 public class ChecksumException : NmeaException
 {
-    public ChecksumException() : base() { }
-    public ChecksumException(string message) : base(message) { }
-    public ChecksumException(string message, Exception ex) : base(message, ex) { }
+    public ChecksumException(string sentence) : base(sentence) { }
+    public ChecksumException(string message, string sentence) : base(message, sentence) { }
+    public ChecksumException(string message, Exception ex, string sentence) : base(message, ex, sentence) { }
 }
