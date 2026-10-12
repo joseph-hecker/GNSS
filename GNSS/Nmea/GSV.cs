@@ -54,13 +54,12 @@ public class GSV : NmeaSentence
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing GSV message. ({_message})", ex);
+            throw new NmeaException($"Error parsing GSV message.", ex, message);
         }
     }
 
     public override void UpdateGPSData(GPSData data)
     {
-        throw new InvalidOperationException(
-            $"GSV sentences must be merged with {nameof(GSVAccumulator)}.{nameof(GSVAccumulator.Apply)}.");
+        throw new InvalidOperationException($"GSV sentences must be merged with {nameof(GSVAccumulator)}.{nameof(GSVAccumulator.Apply)}.");
     }
 }

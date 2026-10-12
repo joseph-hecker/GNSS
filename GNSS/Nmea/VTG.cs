@@ -30,7 +30,7 @@ public class VTG : NmeaSentence
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing VTG message. ({_message})", ex);
+            throw new NmeaException($"Error parsing VTG message.", ex, message);
         }
     }
 

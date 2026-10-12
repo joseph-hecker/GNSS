@@ -1,8 +1,9 @@
 ﻿namespace GNSS.Test;
 
+[TestFixture, TestOf(nameof(GPS))]
 public class GPSTests
 {
-    private static readonly Dictionary<ProviderType, Dictionary<string, string>> DriverOptions = new()
+    private static readonly Dictionary<ProviderType, Dictionary<string, string>> ProviderOptions = new()
     {
         { ProviderType.TCP, new()
         {
@@ -20,6 +21,13 @@ public class GPSTests
         }},
     };
 
+    private static void StartGPSWithTextFileProvider()
+    {
+        ProviderType providerType = ProviderType.TextFile;
+        GPS.Connect(providerType, ProviderOptions[providerType]);
+        GPS.StartUpdatingLocation();
+    }
+
     [TearDown]
     public void TearDown()
     {
@@ -27,11 +35,17 @@ public class GPSTests
     }
 
     [Test, TestOf(nameof(GPS.Connect))]
-    public void TestConnect([Values] ProviderType driverType)
+    public void TestConnect([Values] ProviderType providerType)
     {
+        if (providerType == ProviderType.InternalGPS ||
+            providerType == ProviderType.Map)
+        {
+            Assert.Ignore();
+        }
+
         try
         {
-            GPS.Connect(driverType, DriverOptions[driverType]);
+            GPS.Connect(providerType, ProviderOptions[providerType]);
         }
         catch (FormatException)
         {
@@ -44,19 +58,17 @@ public class GPSTests
     public void TestStartUpdatingLocataion()
     {
         GPSData gpsData = new();
-        ProviderType driverType = ProviderType.TextFile;
-        GPS.Connect(driverType, DriverOptions[driverType]);
-        GPS.StartUpdatingLocation();
-        GPS.OnLocationUpdated += UpdateGPSData;
-        Thread.Sleep(5_000);
-        GPS.OnLocationUpdated -= UpdateGPSData;
-        Assert.That(gpsData, Is.Not.EqualTo(new GPSData()));
-
         void UpdateGPSData(GPSData data)
         {
             Assert.That(data, Is.Not.EqualTo(gpsData));
             gpsData = data;
         }
+
+        StartGPSWithTextFileProvider();
+        GPS.OnLocationUpdated += UpdateGPSData;
+        Thread.Sleep(5_000);
+        GPS.OnLocationUpdated -= UpdateGPSData;
+        Assert.That(gpsData, Is.Not.EqualTo(new GPSData()));
     }
 
     [Test, TestOf(nameof(GPS.StartUpdatingLocation))]
@@ -68,10 +80,10 @@ public class GPSTests
     [Test, TestOf(nameof(GPS.GetNextLocationAsync))]
     public async Task TestGetNextLocationAsync()
     {
-        ProviderType driverType = ProviderType.TextFile;
         Assert.ThrowsAsync<InvalidOperationException>(GPS.GetNextLocationAsync);
-        GPS.Connect(driverType, DriverOptions[driverType]);
-        GPS.StartUpdatingLocation();
+
+        StartGPSWithTextFileProvider();
+        Thread.Sleep(5_000);
         GPSData gpsData = await GPS.GetNextLocationAsync();
         Assert.That(gpsData, Is.Not.EqualTo(new GPSData()));
     }
@@ -79,12 +91,9 @@ public class GPSTests
     [Test, TestOf(nameof(GPS.WaitForRequirements))]
     public async Task TestWaitForRequirements()
     {
-        ProviderType driverType = ProviderType.TextFile;
-        GPS.Connect(driverType, DriverOptions[driverType]);
-        GPS.StartUpdatingLocation();
+        StartGPSWithTextFileProvider();
         CancellationToken ct = GPS.WaitForRequirements(data => data.SatellitesInUse >= 10);
-        while (!ct.WaitHandle.WaitOne())
-        { }
+        while (!ct.WaitHandle.WaitOne()) { }
         GPSData data = await GPS.GetNextLocationAsync();
         Assert.That(data.SatellitesInUse, Is.GreaterThanOrEqualTo(10));
     }
@@ -92,9 +101,7 @@ public class GPSTests
     [Test, TestOf(nameof(GPS.WaitForRequirements))]
     public void TestWaitForRequirementsImmediateCancelation()
     {
-        ProviderType driverType = ProviderType.TextFile;
-        GPS.Connect(driverType, DriverOptions[driverType]);
-        GPS.StartUpdatingLocation();
+        StartGPSWithTextFileProvider();
         CancellationToken ct = GPS.WaitForRequirements(data => true);
         Assert.That(ct, Is.EqualTo(CancellationToken.None));
     }

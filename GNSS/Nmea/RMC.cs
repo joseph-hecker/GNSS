@@ -38,7 +38,7 @@ public class RMC : NmeaSentence, ILocation
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing RMC message. ({_message})", ex);
+            throw new NmeaException($"Error parsing RMC message.", ex, message);
         }
     }
 

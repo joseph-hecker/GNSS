@@ -42,7 +42,7 @@ public class GGA : NmeaSentence, ILocation
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing GGA message. ({_message})", ex);
+            throw new NmeaException($"Error parsing GGA message.", message);
         }
     }
 

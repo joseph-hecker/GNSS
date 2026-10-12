@@ -26,7 +26,7 @@ public class GLL : NmeaSentence, ILocation
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing GLL message. ({_message})", ex);
+            throw new NmeaException($"Error parsing GLL message.", ex, message);
         }
     }
 

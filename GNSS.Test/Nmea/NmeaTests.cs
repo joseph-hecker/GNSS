@@ -9,7 +9,7 @@ public class NmeaTests
     private static string FormatErrorMessage()
     {
         string? nmea = TestContext.CurrentContext.Test.Arguments.SingleOrDefault(arg => arg is string str && str.StartsWith('$')) as string;
-        string message = $"Error parsing nmea message at element {NmeaIndex}.";
+        string message = $"Error parsing nmea message on field {NmeaIndex}.";
         if (nmea is not null)
         {
             message += $" ({nmea})";

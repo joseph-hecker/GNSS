@@ -7,6 +7,11 @@ public class Satellite(int prn, int elevation, int azimuth, int snr) : IEquatabl
     public int Azimuth { get; } = azimuth;
     public int SNR { get; } = snr;
 
+    public Satellite Copy()
+    {
+        return new(PRN, Elevation, Azimuth, SNR);
+    }
+
     public bool Equals(Satellite? other)
     {
         if (other is null) return false;

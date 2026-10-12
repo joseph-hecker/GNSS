@@ -33,7 +33,7 @@ public class GSA : NmeaSentence
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing GSA message. ({_message})", ex);
+            throw new NmeaException($"Error parsing GSA message.", ex, message);
         }
     }
 

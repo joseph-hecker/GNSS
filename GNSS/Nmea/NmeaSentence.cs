@@ -19,7 +19,7 @@ public abstract class NmeaSentence : ILocationInfo, IEquatable<NmeaSentence>
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing NMEA message. ({_message})", ex);
+            throw new NmeaException($"Error parsing NMEA message.", ex, message);
         }
     }
 
@@ -37,7 +37,7 @@ public abstract class NmeaSentence : ILocationInfo, IEquatable<NmeaSentence>
 
         if (checksum != expected)
         {
-            throw new ChecksumException($"Expected checksum 0x{expected:X} ({expected}), but got 0x{checksum:X} ({checksum}). ({_message})");
+            throw new ChecksumException($"Expected checksum 0x{expected:X} ({expected}), but got 0x{checksum:X} ({checksum}).", _message);
         }
     }
 
@@ -91,7 +91,7 @@ public abstract class NmeaSentence : ILocationInfo, IEquatable<NmeaSentence>
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing NMEA message. ({message.Replace("\r\n", "")})", ex);
+            throw new NmeaException($"Error parsing NMEA message.", ex, message);
         }
     }
 

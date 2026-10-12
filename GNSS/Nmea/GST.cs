@@ -28,7 +28,7 @@ public class GST : NmeaSentence
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing GST message. ({_message})", ex);
+            throw new NmeaException($"Error parsing GST message.", ex, message);
         }
     }
 

@@ -1,7 +1,7 @@
 ﻿using GNSS.Nmea;
 using GNSS.Nmea.Exceptions;
 using GNSS.Providers;
-using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace GNSS;
 
@@ -14,6 +14,8 @@ public static class GPS
 
     public delegate void OnLocationUpdatedEventHandler(GPSData data);
     public static event OnLocationUpdatedEventHandler? OnLocationUpdated;
+
+    public static ILogger? Logger { get; set; }
 
     public static async Task<GPSData> GetNextLocationAsync()
     {
@@ -57,21 +59,34 @@ public static class GPS
             if (sentence is not null)
             {
                 ApplyLocationUpdate(sentence);
+                Logger?.LogInformation("{nmea}", sentence.ToString());
             }
         }
         catch (ChecksumException) { }
+        catch (NmeaException ex)
+        {
+            Logger?.LogWarning(ex, "{message} ({nmea})", ex.Message, ex.Nmea);
+        }
         catch (Exception ex)
         {
-            //Debug.WriteLine(ex.Message);
+            Logger?.LogWarning(ex, "{message}", ex.Message);
         }
     }
 
-    private static void OnNewLocation(GPSLocation location) => ApplyLocationUpdate(location);
+    private static void OnNewLocation(GPSLocation location)
+    {
+        ApplyLocationUpdate(location);
+        if (CurrentGPSData is not null)
+        {
+            OnLocationUpdated?.Invoke(CurrentGPSData.Copy());
+        }
+    }
 
     private static void Connect(ILocationProvider provider)
     {
         Disconnect();
         LocationProvider = provider;
+        Logger?.LogInformation("GPS connected to {provider} provider.", provider.GetType().Name);
     }
 
     public static void Connect(ProviderType providerType, Dictionary<string, string> providerOptions)
@@ -110,7 +125,9 @@ public static class GPS
         LocationTimer = new((state) =>
         {
             if (CurrentGPSData is not null)
+            {
                 OnLocationUpdated?.Invoke(CurrentGPSData.Copy());
+            }
         }, null, 1000, 1000);
     }
 
@@ -149,6 +166,7 @@ public static class GPS
 
     public static CancellationToken WaitForRTKFix() => WaitForRequirements(data => data.FixQuality == FixQuality.RTKFix);
     public static CancellationToken WaitForEstimatedAccuracy(double requiredAccuracy) => WaitForRequirements(data => data.EstimatedAccuracy <= requiredAccuracy);
+    public static CancellationToken WaitForSkadiTriggerPressed() => WaitForRequirements(data => data.EnavData?.EnavMode == EnavMode.ExtensiblePoleTriggerPressed);
 }
 
 public enum ProviderType

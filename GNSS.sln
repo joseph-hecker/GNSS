@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNSS", "GNSS\GNSS.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNSS.Test", "GNSS.Test\GNSS.Test.csproj", "{52756BE0-607C-1F63-55DF-D93FA73AEA2D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNSS.Workflows", "GNSS.Workflows\GNSS.Workflows.csproj", "{A9199D86-62D2-4D12-8004-BB03CCE64E84}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNSS.Workflows.Test", "GNSS.Workflows.Test\GNSS.Workflows.Test.csproj", "{813F11C6-C049-4440-B898-D66ACF95AF95}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{52756BE0-607C-1F63-55DF-D93FA73AEA2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52756BE0-607C-1F63-55DF-D93FA73AEA2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52756BE0-607C-1F63-55DF-D93FA73AEA2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9199D86-62D2-4D12-8004-BB03CCE64E84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9199D86-62D2-4D12-8004-BB03CCE64E84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9199D86-62D2-4D12-8004-BB03CCE64E84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9199D86-62D2-4D12-8004-BB03CCE64E84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{813F11C6-C049-4440-B898-D66ACF95AF95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{813F11C6-C049-4440-B898-D66ACF95AF95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{813F11C6-C049-4440-B898-D66ACF95AF95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{813F11C6-C049-4440-B898-D66ACF95AF95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

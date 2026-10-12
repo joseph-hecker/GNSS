@@ -54,7 +54,7 @@ public class ENAV : NmeaSentence, ILocation
         }
         catch (Exception ex)
         {
-            throw new NmeaException($"Error parsing ENAV message. ({message})", ex);
+            throw new NmeaException($"Error parsing ENAV message.", ex, message);
         }
     }
 

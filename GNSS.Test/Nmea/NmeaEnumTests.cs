@@ -1,13 +1,15 @@
 ﻿using GNSS.Nmea;
+using System.ComponentModel;
 
 namespace GNSS.Test.Nmea;
 
+[TestFixture]
 public class NmeaEnumTests
 {
     [Test, TestOf(nameof(NmeaType))]
     public void TestNmeaType([Values] NmeaType nmeaType)
     {
-        uint? GetExpected(NmeaType nmeaType)
+        static uint GetExpected(NmeaType nmeaType)
         {
             return nmeaType switch
             {
@@ -21,18 +23,18 @@ public class NmeaEnumTests
                 NmeaType.RME => 0x00000040,
                 NmeaType.VTG => 0x00000080,
                 NmeaType.ENAV => 0x00000100,
-                _ => null,
+                _ => throw new InvalidEnumArgumentException(nameof(nmeaType), (int)nmeaType, typeof(NmeaType)),
             };
         }
 
-        uint? expected = GetExpected(nmeaType);
-        Assert.That((uint)nmeaType, Is.EqualTo(expected), $"", nmeaType.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
+        uint expected = GetExpected(nmeaType);
+        Assert.That((uint)nmeaType, Is.EqualTo(expected));
     }
 
     [Test, TestOf(nameof(FixQuality))]
-    public void TestFixQuality([Values] FixQuality quality)
+    public void TestFixQuality([Values] FixQuality fixQuality)
     {
-        int? GetExpected(FixQuality quality)
+        static int GetExpected(FixQuality quality)
         {
             return quality switch
             {
@@ -45,18 +47,18 @@ public class NmeaEnumTests
                 FixQuality.Estimated => 6,
                 FixQuality.Manual => 7,
                 FixQuality.Simulation => 8,
-                _ => null,
+                _ => throw new InvalidEnumArgumentException(nameof(quality), (int)quality, typeof(FixQuality)),
             };
         }
 
-        int? expected = GetExpected(quality);
-        Assert.That((int)quality, Is.EqualTo(expected), $"", quality.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
+        int expected = GetExpected(fixQuality);
+        Assert.That((int)fixQuality, Is.EqualTo(expected));
     }
 
     [Test, TestOf(nameof(PositionMode))]
     public void TestPositionMode([Values] PositionMode positionMode)
     {
-        int? GetExpected(PositionMode positionMode)
+        static int GetExpected(PositionMode positionMode)
         {
             return positionMode switch
             {
@@ -66,36 +68,36 @@ public class NmeaEnumTests
                 PositionMode.Estimated => 3,
                 PositionMode.Manual => 4,
                 PositionMode.Simulated => 5,
-                _ => null,
+                _ => throw new InvalidEnumArgumentException(nameof(positionMode), (int)positionMode, typeof(PositionMode)),
             };
         }
 
-        int? expected = GetExpected(positionMode);
-        Assert.That((int)positionMode, Is.EqualTo(expected), $"", positionMode.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
+        int expected = GetExpected(positionMode);
+        Assert.That((int)positionMode, Is.EqualTo(expected));
     }
 
     [Test, TestOf(nameof(FixMode))]
     public void TestFixMode([Values] FixMode fixMode)
     {
-        int? GetExpected(FixMode fixMode)
+        static int GetExpected(FixMode fixMode)
         {
             return fixMode switch
             {
                 FixMode.None => 1,
                 FixMode.TwoD => 2,
                 FixMode.ThreeD => 3,
-                _ => null,
+                _ => throw new InvalidEnumArgumentException(nameof(fixMode), (int)fixMode, typeof(FixMode)),
             };
         }
 
-        int? expected = GetExpected(fixMode);
-        Assert.That((int)fixMode, Is.EqualTo(expected), $"", fixMode.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
+        int expected = GetExpected(fixMode);
+        Assert.That((int)fixMode, Is.EqualTo(expected));
     }
 
     [Test, TestOf(nameof(EnavMode))]
     public void TestEnavMode([Values] EnavMode enavMode)
     {
-        int? GetExpected(EnavMode enavMode)
+        static int GetExpected(EnavMode enavMode)
         {
             return enavMode switch
             {
@@ -104,18 +106,18 @@ public class NmeaEnumTests
                 EnavMode.InvisiblePole => 3,
                 EnavMode.ExtensiblePoleTriggerUnpressed => 4,
                 EnavMode.ExtensiblePoleTriggerPressed => 5,
-                _ => null,
+                _ => throw new InvalidEnumArgumentException(nameof(enavMode), (int)enavMode, typeof(EnavMode)),
             };
         }
 
-        int? expected = GetExpected(enavMode);
-        Assert.That((int)enavMode, Is.EqualTo(expected), $"", enavMode.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
+        int expected = GetExpected(enavMode);
+        Assert.That((int)enavMode, Is.EqualTo(expected));
     }
 
     [Test, TestOf(nameof(SmartHandleStatus))]
     public void TestSmartHandleStatus([Values] SmartHandleStatus shStatus)
     {
-        int? GetExpected(SmartHandleStatus shStatus)
+        static int GetExpected(SmartHandleStatus shStatus)
         {
             return shStatus switch
             {
@@ -123,11 +125,11 @@ public class NmeaEnumTests
                 SmartHandleStatus.StandardHandle => 1,
                 SmartHandleStatus.SmartHandleOff => 2,
                 SmartHandleStatus.SmartHandleOn => 3,
-                _ => null,
+                _ => throw new InvalidEnumArgumentException(nameof(shStatus), (int)shStatus, typeof(SmartHandleStatus)),
             };
         }
 
-        int? expected = GetExpected(shStatus);
-        Assert.That((int)shStatus, Is.EqualTo(expected), $"", shStatus.ToString(), $"Is.EqualTo({expected?.ToString() ?? "null"})");
+        int expected = GetExpected(shStatus);
+        Assert.That((int)shStatus, Is.EqualTo(expected));
     }
 }

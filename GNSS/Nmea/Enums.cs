@@ -73,6 +73,34 @@ public enum FixQuality : int
     Simulation = 8,
 }
 
+public class FixQualityComparer : IComparer<FixQuality>
+{
+    public int Compare(FixQuality a, FixQuality b)
+    {
+        static int Map(FixQuality fix)
+        {
+            return fix switch
+            {
+                FixQuality.RTKFix => 4,
+                FixQuality.RTKFloat => 3,
+                FixQuality.DGPS => 2,
+                FixQuality.GPS => 1,
+                FixQuality.Simulation or
+                FixQuality.Manual or
+                FixQuality.Estimated or
+                FixQuality.PPS or
+                FixQuality.Invalid or
+                _ => 0,
+            };
+        }
+
+        return Map(a) - Map(b);
+    }
+
+    public FixQuality Max(params FixQuality[] fixes) => fixes.Max(this);
+    public FixQuality Min(params FixQuality[] fixes) => fixes.Min(this);
+}
+
 public enum PositionMode
 {
     Invalid = 0,

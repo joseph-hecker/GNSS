@@ -3,6 +3,7 @@ using GNSS.Nmea.Exceptions;
 
 namespace GNSS.Test.Nmea;
 
+[TestFixture, TestOf(nameof(NmeaSentence))]
 public class NmeaSentenceTests
 {
     private static string[] GetInvalidMedssageForEachNmeaType()
@@ -20,21 +21,6 @@ public class NmeaSentenceTests
     public void TestParseUnknownSentence(string nmea)
     {
         Assert.That(NmeaSentence.Parse(nmea), Is.Null);
-    }
-
-    [Test, TestOf(nameof(NmeaSentence.Parse))]
-    public void TestParseMultiTalkerAddress()
-    {
-        string gnggaBody = "GNGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031";
-        string gngga = $"${gnggaBody}*{Util.GenerateChecksum(gnggaBody)}";
-        NmeaSentence? gga = NmeaSentence.Parse(gngga);
-        Assert.That(gga, Is.InstanceOf<GGA>());
-        Assert.That(gga!.ID, Is.EqualTo(NmeaType.GNGGA));
-
-        const string glgsv = "$GLGSV,2,1,07,67,18,032,42,68,68,039,44,69,54,204,38,75,02,318,,1*70";
-        NmeaSentence? gsv = NmeaSentence.Parse(glgsv);
-        Assert.That(gsv, Is.InstanceOf<GSV>());
-        Assert.That(gsv!.ID, Is.EqualTo(NmeaType.GLGSV));
     }
 
     [Test, TestOf(nameof(NmeaSentence.Parse))]
