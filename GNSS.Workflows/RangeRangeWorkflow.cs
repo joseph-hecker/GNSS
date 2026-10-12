@@ -1,17 +1,10 @@
 ﻿using GNSS.Nmea;
-using System;
-using System.Collections.Generic;
-using System.Net.NetworkInformation;
-using System.Numerics;
-using System.Text;
 
 namespace GNSS.Workflows;
 
 public class RangeRangeWorkflow : GNSSWorkflow
 {
-    public RangeRangeWorkflow(Func<CancellationToken, Task> waitingForRequirements) : base(waitingForRequirements)
-    {
-    }
+    public RangeRangeWorkflow(GPS gps, Func<CancellationToken, Task> waitingForRequirements) : base(gps, waitingForRequirements) { }
 
     public override Task<GPSData> CollectVertexAsync()
     {
@@ -27,7 +20,7 @@ public class RangeRangeWorkflow : GNSSWorkflow
             Latitude = default,
             Longitude = default,
             Altitude = (left.Altitude + right.Altitude) / 2,
-            FixQuality = new FixQualityComparer().Max(left.FixQuality, right.FixQuality)),
+            FixQuality = new FixQualityComparer().Max(left.FixQuality, right.FixQuality),
             PositionMode = default,
             FixMode = default,
             Status = default,

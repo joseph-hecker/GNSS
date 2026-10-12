@@ -1,6 +1,6 @@
 ﻿namespace GNSS.Workflows;
 
-public class StandardGPSWorkflow(Func<CancellationToken, Task> waitingForRequirements) : GNSSWorkflow(waitingForRequirements)
+public class StandardGPSWorkflow(GPS gps, Func<CancellationToken, Task> waitingForRequirements) : GNSSWorkflow(gps, waitingForRequirements)
 {
     public override async Task<GPSData> CollectVertexAsync()
     {

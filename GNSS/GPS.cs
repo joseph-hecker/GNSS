@@ -5,37 +5,37 @@ using Microsoft.Extensions.Logging;
 
 namespace GNSS;
 
-public static class GPS
+public class GPS(ILogger<GPS>? logger = null)
 {
-    private static ILocationProvider? LocationProvider { get; set; }
-    private static GPSData? CurrentGPSData { get; set; }
-    private static Timer? LocationTimer { get; set; }
-    private static GSVAccumulator? GSVAccumulator { get; set; }
+    private ILocationProvider? LocationProvider { get; set; }
+    private GPSData? CurrentGPSData { get; set; }
+    private Timer? LocationTimer { get; set; }
+    private GSVAccumulator? GSVAccumulator { get; set; }
 
     public delegate void OnLocationUpdatedEventHandler(GPSData data);
-    public static event OnLocationUpdatedEventHandler? OnLocationUpdated;
+    public event OnLocationUpdatedEventHandler? OnLocationUpdated;
 
-    public static ILogger? Logger { get; set; }
+    public ILogger? Logger { get; set; } = logger;
 
-    public static async Task<GPSData> GetNextLocationAsync()
+    public async Task<GPSData> GetNextLocationAsync()
     {
         if (CurrentGPSData is null)
         {
-            throw new InvalidOperationException($"GPS is not streaming data, call {nameof(Connect)}() and {nameof(StartUpdatingLocation)}() first.");
+            throw new InvalidOperationException("GPS is not streaming data.");
         }
 
         TaskCompletionSource<GPSData> source = new();
-        void SetResult(GPSData data)
+        void SetData(GPSData data)
         {
-            OnLocationUpdated -= SetResult;
+            OnLocationUpdated -= SetData;
             source.SetResult(data);
         }
 
-        OnLocationUpdated += SetResult;
+        OnLocationUpdated += SetData;
         return await source.Task;
     }
 
-    private static void ApplyLocationUpdate(ILocationInfo info)
+    private void ApplyLocationUpdate(ILocationInfo info)
     {
         if (CurrentGPSData is null)
         {
@@ -51,7 +51,7 @@ public static class GPS
         info.UpdateGPSData(CurrentGPSData);
     }
 
-    private static void OnNmeaRecieved(string nmea)
+    private void OnNmeaRecieved(string nmea)
     {
         try
         {
@@ -65,7 +65,7 @@ public static class GPS
         catch (ChecksumException) { }
         catch (NmeaException ex)
         {
-            Logger?.LogWarning(ex, "{message} ({nmea})", ex.Message, ex.Nmea);
+            Logger?.LogWarning(ex, "{message} {nmea}", ex.Message, ex.Nmea);
         }
         catch (Exception ex)
         {
@@ -73,7 +73,7 @@ public static class GPS
         }
     }
 
-    private static void OnNewLocation(GPSLocation location)
+    private void OnNewLocation(GPSLocation location)
     {
         ApplyLocationUpdate(location);
         if (CurrentGPSData is not null)
@@ -82,39 +82,41 @@ public static class GPS
         }
     }
 
-    private static void Connect(ILocationProvider provider)
+    private void Connect(ILocationProvider provider)
     {
         Disconnect();
         LocationProvider = provider;
         Logger?.LogInformation("GPS connected to {provider} provider.", provider.GetType().Name);
     }
 
-    public static void Connect(ProviderType providerType, Dictionary<string, string> providerOptions)
+    public void Connect(ProviderType providerType, Dictionary<string, string> providerOptions)
     {
         Connect(providerType switch
         {
             ProviderType.TCP => new TCPProvider(providerOptions[Options.Host], int.Parse(providerOptions[Options.Port])),
             ProviderType.Bluetooth => new BluetoothProvider(providerOptions[Options.COMPort], int.Parse(providerOptions[Options.BaudRate])),
             ProviderType.TextFile => new TextFileProvider(providerOptions[Options.NmeaFile]),
-            _ => throw new InvalidOperationException($"'{providerType}' GPS provider is not supported."),
+            ProviderType.InternalGPS => throw new InvalidOperationException("Use `Connect(IInternalGPSHelper helper)` instead."),
+            ProviderType.Map => throw new InvalidOperationException("Use `Connect(IMapHelper helper)` instead."),
+            _ => throw new InvalidOperationException($"`{providerType}` GPS provider is not supported."),
         });
     }
 
-    public static void Connect(IInternalGPSHelper helper) => Connect(new InternalGPSProvider(helper));
+    public void Connect(IInternalGPSHelper helper) => Connect(new InternalGPSProvider(helper));
 
-    public static void Connect(IMapHelper helper) => Connect(new MapProvider(helper));
+    public void Connect(IMapHelper helper) => Connect(new MapProvider(helper));
 
-    public static void Disconnect()
+    public void Disconnect()
     {
         StopUpdatingLocation();
         LocationProvider = null;
     }
 
-    public static void StartUpdatingLocation(Dictionary<string, string>? ntripOptions = null)
+    public void StartUpdatingLocation(Dictionary<string, string>? ntripOptions = null)
     {
         if (LocationProvider is null)
         {
-            throw new InvalidOperationException($"GPS provider is not connected. Call {nameof(Connect)}() first.");
+            throw new InvalidOperationException("GPS is not connected.");
         }
 
         CurrentGPSData = new();
@@ -131,7 +133,7 @@ public static class GPS
         }, null, 1000, 1000);
     }
 
-    public static void StopUpdatingLocation()
+    public void StopUpdatingLocation()
     {
         LocationTimer?.Dispose();
         LocationTimer = null;
@@ -142,7 +144,7 @@ public static class GPS
         CurrentGPSData = null;
     }
 
-    public static CancellationToken WaitForRequirements(Predicate<GPSData> checkRequirements)
+    public CancellationToken WaitForRequirements(Predicate<GPSData> checkRequirements)
     {
         if (CurrentGPSData is null || LocationProvider is MapProvider || checkRequirements(CurrentGPSData))
         {
@@ -164,9 +166,9 @@ public static class GPS
         return source.Token;
     }
 
-    public static CancellationToken WaitForRTKFix() => WaitForRequirements(data => data.FixQuality == FixQuality.RTKFix);
-    public static CancellationToken WaitForEstimatedAccuracy(double requiredAccuracy) => WaitForRequirements(data => data.EstimatedAccuracy <= requiredAccuracy);
-    public static CancellationToken WaitForSkadiTriggerPressed() => WaitForRequirements(data => data.EnavData?.EnavMode == EnavMode.ExtensiblePoleTriggerPressed);
+    public CancellationToken WaitForRTKFixed() => WaitForRequirements(data => data.FixQuality == FixQuality.RTKFixed);
+    public CancellationToken WaitForEstimatedAccuracy(double requiredAccuracy) => WaitForRequirements(data => data.EstimatedAccuracy <= requiredAccuracy);
+    public CancellationToken WaitForSkadiTriggerPressed() => WaitForRequirements(data => data.EnavData?.TriggerIsPressed ?? throw new InvalidOperationException("There was no enav data to check."));
 }
 
 public enum ProviderType

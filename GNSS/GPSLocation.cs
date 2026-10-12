@@ -19,11 +19,16 @@ public readonly record struct GPSLocation(
     {
         data.Latitude = Latitude;
         data.Longitude = Longitude;
-        if (Altitude.HasValue) data.Altitude = Altitude.Value;
-        if (Speed.HasValue) data.Speed = Speed.Value;
-        if (Course.HasValue) data.Course = Course.Value;
-        if (EstimatedAccuracy.HasValue) data.EstimatedAccuracy = EstimatedAccuracy.Value;
-        if (FixQuality.HasValue) data.FixQuality = FixQuality.Value;
+        if (Altitude.HasValue)
+            data.Altitude = Altitude.Value;
+        if (Speed.HasValue)
+            data.Speed = Speed.Value;
+        if (Course.HasValue)
+            data.Course = Course.Value;
+        if (EstimatedAccuracy.HasValue)
+            data.EstimatedAccuracy = EstimatedAccuracy.Value;
+        if (FixQuality.HasValue)
+            data.FixQuality = FixQuality.Value;
         if (UTC is DateTime utc)
         {
             data.UTCDate = DateOnly.FromDateTime(utc);

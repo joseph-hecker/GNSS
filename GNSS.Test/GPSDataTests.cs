@@ -1,6 +1,4 @@
-﻿using GNSS.Nmea;
-
-namespace GNSS.Test;
+﻿namespace GNSS.Test;
 
 //[TestFixture, TestOf(typeof(GPSData))]
 //public class GPSDataTests

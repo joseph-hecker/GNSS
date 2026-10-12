@@ -42,7 +42,7 @@ public class NmeaEnumTests
                 FixQuality.GPS => 1,
                 FixQuality.DGPS => 2,
                 FixQuality.PPS => 3,
-                FixQuality.RTKFix => 4,
+                FixQuality.RTKFixed => 4,
                 FixQuality.RTKFloat => 5,
                 FixQuality.Estimated => 6,
                 FixQuality.Manual => 7,

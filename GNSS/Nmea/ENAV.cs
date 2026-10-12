@@ -14,6 +14,7 @@ public class ENAV : NmeaSentence, ILocation
     public double Roll { get; }
     public double Pitch { get; }
     public double Yaw { get; }
+    public double TiltAngle { get; }
     public double PositionQuality { get; }
     public FixQuality RawFix { get; }
     public int AntennaHeight { get; }
@@ -21,15 +22,20 @@ public class ENAV : NmeaSentence, ILocation
     public EnavMode EnavMode { get; }
     public SmartHandleStatus SHStatus { get; }
 
-    public bool ValidCompData
-    {
-        get
-        {
-            double min = -0.00005, max = 0.00005;
-            return !(min < CompLat && CompLat < max) &&
-                   !(min < CompLon && CompLon < max);
-        }
-    }
+    /// <summary>
+    /// If the Skadi's tilt compensation has been initialized. Requires <see cref="FixQuality.RTKFixed"/> and IMU calibration.
+    /// </summary>
+    public bool TiltCompInitilized => PositionQuality == -1;
+
+    /// <summary>
+    /// If the Skadi's trigger is being pressed. Only applies for extensible pole mode.
+    /// </summary>
+    public bool TriggerIsPressed => EnavMode == EnavMode.ExtensiblePoleTriggerPressed;
+
+    /// <summary>
+    /// The height difference between the Skadi and the ground.
+    /// </summary>
+    public double InvisiblePoleHeight => RawAlt - CompAlt;
 
     public ENAV(string message) : base(message)
     {
@@ -46,6 +52,7 @@ public class ENAV : NmeaSentence, ILocation
             Pitch = double.Parse(_parts[9]);
             Yaw = double.Parse(_parts[10]);
             PositionQuality = double.Parse(_parts[11]);
+            TiltAngle = double.Parse(_parts[13]);
             RawFix = Enum.Parse<FixQuality>(_parts[17]);
             AntennaHeight = int.Parse(_parts[20]);
             LidarStrength = int.Parse(_parts[21]);
@@ -60,17 +67,17 @@ public class ENAV : NmeaSentence, ILocation
 
     public double Latitude()
     {
-        return ValidCompData ? CompLat : RawLat;
+        return TiltCompInitilized ? CompLat : RawLat;
     }
 
     public double Longitude()
     {
-        return ValidCompData ? CompLon : RawLon;
+        return TiltCompInitilized ? CompLon : RawLon;
     }
 
     public double Altitude()
     {
-        return ValidCompData ? CompAlt : RawAlt;
+        return TiltCompInitilized ? CompAlt : RawAlt;
     }
 
     public override void UpdateGPSData(GPSData data)

@@ -1,23 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Text;
+﻿namespace GNSS.Workflows;
 
-namespace GNSS.Workflows;
-
-public class SkadiEPMWorkflow(Func<CancellationToken, Task> waitingForRequirements) : GNSSWorkflow(waitingForRequirements)
+/// <summary>
+/// GNSS workflow for Skadi Extensible Pole Mode.
+/// </summary>
+public class SkadiEPMWorkflow(GPS gps, Func<CancellationToken, Task> waitingForRequirements) : SkadiTiltCompWorkflow(gps, waitingForRequirements)
 {
-    public new bool RequireDGPS => true;
-    public new bool RequireRTKFix => true;
-
-    protected override bool CheckRequirements(GPSData data)
-    {
-        ArgumentNullException.ThrowIfNull(data.EnavData, nameof(data.EnavData));
-        return base.CheckRequirements(data)
-            && data.EnavData.ValidCompData;
-    }
-
     public override async Task<GPSData> CollectVertexAsync()
     {
         CancellationToken ct = GPS.WaitForRequirements(CheckRequirements);
@@ -32,6 +19,8 @@ public class SkadiEPMWorkflow(Func<CancellationToken, Task> waitingForRequiremen
 
         GPSData data = await source.Task;
         registration.Unregister();
+
+        // Check that all requirements are still met after waiting for a trigger press.
         if (!CheckRequirements(data))
         {
             return await CollectVertexAsync();

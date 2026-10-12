@@ -14,8 +14,10 @@ public class Satellite(int prn, int elevation, int azimuth, int snr) : IEquatabl
 
     public bool Equals(Satellite? other)
     {
-        if (other is null) return false;
-        if (ReferenceEquals(this, other)) return true;
+        if (other is null)
+            return false;
+        if (ReferenceEquals(this, other))
+            return true;
         return PRN == other.PRN &&
                Elevation == other.Elevation &&
                Azimuth == other.Azimuth &&

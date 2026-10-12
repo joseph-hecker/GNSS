@@ -66,7 +66,7 @@ public enum FixQuality : int
     GPS = 1,
     DGPS = 2,
     PPS = 3,
-    RTKFix = 4,
+    RTKFixed = 4,
     RTKFloat = 5,
     Estimated = 6,
     Manual = 7,
@@ -81,7 +81,7 @@ public class FixQualityComparer : IComparer<FixQuality>
         {
             return fix switch
             {
-                FixQuality.RTKFix => 4,
+                FixQuality.RTKFixed => 4,
                 FixQuality.RTKFloat => 3,
                 FixQuality.DGPS => 2,
                 FixQuality.GPS => 1,
