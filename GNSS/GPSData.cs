@@ -41,7 +41,7 @@ public class GPSData : IEquatable<GPSData>
     public double LatStd { get; set; }
     public double LonStd { get; set; }
     public double AltStd { get; set; }
-    public int? Age { get; set; }
+    public double? Age { get; set; }
     public int? StationID { get; set; }
     public ENAV? EnavData { get; set; }
 
@@ -147,7 +147,7 @@ public class GPSData : IEquatable<GPSData>
         hash.Add(MagneticVariationDir);
         hash.Add(SatellitesInUse);
         hash.Add(SatellitesInView);
-        hash.Add(Satellites);
+        Satellites.ForEach(hash.Add);
         hash.Add(RMSRange);
         hash.Add(MajorStd);
         hash.Add(MinorStd);

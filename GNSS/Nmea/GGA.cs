@@ -16,7 +16,7 @@ public class GGA : NmeaSentence, ILocation
     public string AltUnits { get; }
     public double Undulation { get; }
     public string UndulationUnits { get; }
-    public int? Age { get; }
+    public double? Age { get; }
     public int? StationID { get; }
 
     public GGA(string message) : base(message)
@@ -35,7 +35,7 @@ public class GGA : NmeaSentence, ILocation
             AltUnits = _parts[10];
             Undulation = double.Parse(_parts[11]);
             UndulationUnits = _parts[12];
-            if (int.TryParse(_parts[13], out int age))
+            if (double.TryParse(_parts[13], out double age))
                 Age = age;
             if (int.TryParse(_parts[14], out int stationID))
                 StationID = stationID;

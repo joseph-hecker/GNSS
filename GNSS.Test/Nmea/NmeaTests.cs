@@ -1,4 +1,5 @@
 ﻿using GNSS.Nmea;
+using System.ComponentModel;
 
 namespace GNSS.Test.Nmea;
 
@@ -8,31 +9,21 @@ public class NmeaTests
 
     private static string FormatErrorMessage()
     {
-        string? nmea = TestContext.CurrentContext.Test.Arguments.SingleOrDefault(arg => arg is string str && str.StartsWith('$')) as string;
-        string message = $"Error parsing nmea message on field {NmeaIndex}.";
-        if (nmea is not null)
-        {
-            message += $" ({nmea})";
-        }
-
-        return message;
+        return $"Error validating nmea message on field {NmeaIndex}.";
     }
 
-    private static string[][] GetGSVMessages()
+    private static string GetPositionModeCode(PositionMode mode)
     {
-        return
-        [
-            [
-                "$GPGSV,8,1,25,21,44,141,47,15,14,049,44,6,31,255,46,3,25,280,44*75",
-                "$GPGSV,8,2,25,18,61,057,48,22,68,320,52,27,34,268,47,24,32,076,45*76",
-                "$GPGSV,8,3,25,14,51,214,49,19,23,308,46*7E",
-                "$GPGSV,8,4,25,51,44,183,49,46,41,169,43,48,36,220,45*47",
-                "$GLGSV,8,5,25,82,49,219,52,76,22,051,41,83,37,316,51,67,57,010,51*6C",
-                "$GLGSV,8,6,25,77,24,108,44,81,10,181,46,78,1,152,34,66,18,060,45*50",
-                "$GLGSV,8,7,25,68,37,284,50*5C",
-                "$GBGSV,8,8,25,111,35,221,47,112,4,179,39,114,48,290,48*55",
-            ],
-        ];
+        return mode switch
+        {
+            PositionMode.Autonomous => "A",
+            PositionMode.Differential => "D",
+            PositionMode.Estimated => "E",
+            PositionMode.Manual => "M",
+            PositionMode.Simulated => "S",
+            PositionMode.Invalid => "N",
+            _ => throw new InvalidEnumArgumentException(nameof(mode), (int)mode, typeof(PositionMode)),
+        };
     }
 
     [SetUp]
@@ -42,42 +33,43 @@ public class NmeaTests
     }
 
     [Test, TestOf(nameof(GGA))]
-    [TestCase("$GPGGA,172814.00,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0,0031*7F")]
-    [TestCase("$GPGGA,220314.00,4032.11025544,N,10502.52948864,W,0,15,0.6,1514.592,M,-20.906,M,2.0,0029*4A")]
+    [TestCaseSource(typeof(NmeaSource), nameof(NmeaSource.GetGGAMessages))]
     public void TestGGA(string nmea)
     {
         GGA gga = new(nmea);
         Assert.Multiple(() =>
         {
             string[] expected = nmea[..^3].Split(',');
-            Assert.That(gga.ID, Is.EqualTo(NmeaType.GGA), FormatErrorMessage);
-            Assert.That(gga.Time.ToString("HHmmss.ff"), Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
-            Assert.That(gga.Lat, Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
-            Assert.That(gga.LatDir, Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
-            Assert.That(gga.Lon, Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
-            Assert.That(gga.LonDir, Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
-            Assert.That(gga.FixQuality, Is.EqualTo(Enum.Parse<FixQuality>(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(gga.SatsUsed, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(gga.Hdop, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(gga.Alt, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(gga.AltUnits, Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
-            Assert.That(gga.Undulation, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(gga.UndulationUnits, Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.ID,                                Is.EqualTo(NmeaType.GGA), FormatErrorMessage);
+            Assert.That(gga.Time.ToString("HHmmss.ff"),        Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.Lat,                               Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.LatDir,                            Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.Lon,                               Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.LonDir,                            Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.FixQuality.ToString("d"),          Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.SatsUsed.ToString("00"),           Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.Hdop.ToString(),                   Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.Alt.ToString("####.000"),          Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.AltUnits,                          Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.Undulation.ToString(),             Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.UndulationUnits,                   Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.Age?.ToString("##.0") ?? "",       Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gga.StationID?.ToString("0000") ?? "", Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
         });
 
         GPSData data = new();
         gga.UpdateGPSData(data);
         Assert.Multiple(() =>
         {
-            Assert.That(data.UTC.TimeOfDay, Is.EqualTo(gga.Time.ToTimeSpan()));
-            Assert.That(data.Latitude, Is.EqualTo(gga.Latitude()));
-            Assert.That(data.Longitude, Is.EqualTo(gga.Longitude()));
-            Assert.That(data.Altitude, Is.EqualTo(gga.Alt));
-            Assert.That(data.FixQuality, Is.EqualTo(gga.FixQuality));
-            Assert.That(data.HDOP, Is.EqualTo(gga.Hdop));
+            Assert.That(data.UTC.TimeOfDay,   Is.EqualTo(gga.Time.ToTimeSpan()));
+            Assert.That(data.Latitude,        Is.EqualTo(gga.Latitude()));
+            Assert.That(data.Longitude,       Is.EqualTo(gga.Longitude()));
+            Assert.That(data.Altitude,        Is.EqualTo(gga.Alt));
+            Assert.That(data.FixQuality,      Is.EqualTo(gga.FixQuality));
+            Assert.That(data.HDOP,            Is.EqualTo(gga.Hdop));
             Assert.That(data.SatellitesInUse, Is.EqualTo(gga.SatsUsed));
-            Assert.That(data.Age, Is.EqualTo(gga.Age));
-            Assert.That(data.StationID, Is.EqualTo(gga.StationID));
+            Assert.That(data.Age,             Is.EqualTo(gga.Age));
+            Assert.That(data.StationID,       Is.EqualTo(gga.StationID));
         });
 
         Assert.That(gga.ValidateChecksum, Throws.Nothing);
@@ -85,21 +77,32 @@ public class NmeaTests
     }
 
     [Test, TestOf(nameof(GLL))]
-    [TestCase("$GPGLL,3953.88008971,N,10506.75318910,W,034138.00,A,D*7A")]
+    [TestCaseSource(typeof(NmeaSource), nameof(NmeaSource.GetGLLMessages))]
     public void TestGLL(string nmea)
     {
-        Assert.Ignore();
         GLL gll = new(nmea);
         Assert.Multiple(() =>
         {
             string[] expected = nmea[..^3].Split(',');
+            Assert.That(gll.ID,                                Is.EqualTo(NmeaType.GLL), FormatErrorMessage);
+            Assert.That(gll.Lat,                               Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gll.LatDir,                            Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gll.Lon,                               Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gll.LonDir,                            Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gll.Time.ToString("HHmmss.ff"),        Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gll.Status,                            Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(GetPositionModeCode(gll.PositionMode), Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
         });
 
         GPSData data = new();
         gll.UpdateGPSData(data);
         Assert.Multiple(() =>
         {
-
+            Assert.That(data.UTC.TimeOfDay, Is.EqualTo(gll.Time.ToTimeSpan()));
+            Assert.That(data.Latitude,      Is.EqualTo(gll.Latitude()));
+            Assert.That(data.Longitude,     Is.EqualTo(gll.Longitude()));
+            Assert.That(data.PositionMode,  Is.EqualTo(gll.PositionMode));
+            Assert.That(data.Status,        Is.EqualTo(gll.Status));
         });
 
         Assert.That(gll.ValidateChecksum, Throws.Nothing);
@@ -107,22 +110,35 @@ public class NmeaTests
     }
 
     [Test, TestOf(nameof(GSA))]
-    [TestCase("$GNGSA,A,3,21,5,29,25,12,10,26,2,,,,,1.2,0.7,1.0*27")]
-    [TestCase("$GNGSA,A,3,65,67,80,81,82,88,66,,,,,,1.2,0.7,1.0*20")]
+    [TestCaseSource(typeof(NmeaSource), nameof(NmeaSource.GetGSAMessages))]
     public void TestGSA(string nmea)
     {
-        Assert.Ignore();
         GSA gsa = new(nmea);
-        Assert.Multiple(() =>
+        Assert.Multiple(() => 
         {
             string[] expected = nmea[..^3].Split(',');
+            Assert.That(gsa.ID,                    Is.EqualTo(NmeaType.GSA), FormatErrorMessage);
+            Assert.That(gsa.SelectionMode,         Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gsa.FixMode.ToString("d"), Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            for (int i = 0; i < expected.Length - 7; i++)
+            {
+                string prn = (gsa.PRNs.Count > i) ? gsa.PRNs[i].ToString("00") : "";
+                Assert.That(prn,                   Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            }
+            Assert.That(gsa.VDOP.ToString(),       Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gsa.HDOP.ToString(),       Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gsa.PDOP.ToString(),       Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gsa.GNSSID.ToString(),     Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
         });
 
         GPSData data = new();
         gsa.UpdateGPSData(data);
         Assert.Multiple(() =>
         {
-
+            Assert.That(data.FixMode, Is.EqualTo(gsa.FixMode));
+            Assert.That(data.PDOP,  Is.EqualTo(gsa.PDOP));
+            Assert.That(data.HDOP,  Is.EqualTo(gsa.HDOP));
+            Assert.That(data.VDOP,  Is.EqualTo(gsa.VDOP));
         });
 
         Assert.That(gsa.ValidateChecksum, Throws.Nothing);
@@ -130,51 +146,71 @@ public class NmeaTests
     }
 
     [Test, TestOf(nameof(GST))]
-    [TestCase("$GPGST,172814.0,0.006,0.023,0.020,273.6,0.023,0.020,0.031*6A")]
+    [TestCaseSource(typeof(NmeaSource), nameof(NmeaSource.GetGSTMessages))]
     public void TestGST(string nmea)
     {
-        Assert.Ignore();
         GST gst = new(nmea);
         Assert.Multiple(() =>
         {
             string[] expected = nmea[..^3].Split(',');
+            Assert.That(gst.ID,                         Is.EqualTo(NmeaType.GST), FormatErrorMessage);
+            Assert.That(gst.Time.ToString("HHmmss.ff"), Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gst.RMSRange.ToString("0.000"), Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gst.MajorStd.ToString("0.000"), Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gst.MinorStd.ToString(),        Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gst.MajorAngle.ToString(),      Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gst.LatStd.ToString("0.000"),   Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gst.LonStd.ToString(),          Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(gst.AltStd.ToString(),          Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
         });
 
         GPSData data = new();
         gst.UpdateGPSData(data);
         Assert.Multiple(() =>
         {
-
+            Assert.That(data.UTC.TimeOfDay,      Is.EqualTo(gst.Time.ToTimeSpan()));
+            Assert.That(data.RMSRange,           Is.EqualTo(gst.RMSRange));
+            Assert.That(data.MajorStd,           Is.EqualTo(gst.MajorStd));
+            Assert.That(data.MinorStd,           Is.EqualTo(gst.MinorStd));
+            Assert.That(data.MajorAngle,         Is.EqualTo(gst.MajorAngle));
+            Assert.That(data.LatStd,             Is.EqualTo(gst.LatStd));
+            Assert.That(data.LonStd,             Is.EqualTo(gst.LonStd));
+            Assert.That(data.AltStd,             Is.EqualTo(gst.AltStd));
+            Assert.That(data.EstimatedAccuracy,  Is.EqualTo(Math.Sqrt(gst.LatStd * gst.LatStd + gst.LonStd * gst.LonStd)));
         });
 
         Assert.That(gst.ValidateChecksum, Throws.Nothing);
         Assert.That(NmeaSentence.Parse(nmea), Is.EqualTo(gst));
     }
 
-    [Test, TestOf(nameof(GSV))]
-    [TestCaseSource(nameof(GetGSVMessages))]
+    [Test, TestOf(nameof(GSV)), TestOf(nameof(GSVAccumulator))]
+    [TestCaseSource(typeof(NmeaSource), nameof(NmeaSource.GetGSVMessages))]
     public void TestGSV(string[] nmeaMessages)
     {
         GPSData data = new();
         GSVAccumulator accumulator = new();
         List<Satellite> expectedSatellites = [];
-        foreach (string message in nmeaMessages)
+        foreach (string nmea in nmeaMessages)
         {
             SetUp();
-            GSV gsv = new(message);
+            GSV gsv = new(nmea);
             Assert.Multiple(() =>
             {
-                string[] expected = message[..^3].Split(',');
-                Assert.That(gsv.ID, Is.EqualTo(NmeaType.GSV), FormatErrorMessage);
-                Assert.That(gsv.TotalMessages, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-                Assert.That(gsv.MessageNumber, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
+                string[] expected = nmea[..^3].Split(',');
+                Assert.That(gsv.ID,               Is.EqualTo(NmeaType.GSV), FormatErrorMessage);
+                Assert.That(gsv.TotalMessages,    Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
+                Assert.That(gsv.MessageNumber,    Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
                 Assert.That(gsv.SatellitesInView, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-                foreach (Satellite satellite in gsv.Satellites)
+                for (int i = 0; i < gsv.Satellites.Count; i++)
                 {
-                    Assert.That(satellite.PRN, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-                    Assert.That(satellite.Elevation, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-                    Assert.That(satellite.Azimuth, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-                    Assert.That(satellite.SNR, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
+                    _ = int.TryParse(expected[++NmeaIndex], out int prn);
+                    Assert.That(gsv.Satellites[i].PRN,       Is.EqualTo(prn), FormatErrorMessage);
+                    _ = int.TryParse(expected[++NmeaIndex], out int elevation);
+                    Assert.That(gsv.Satellites[i].Elevation, Is.EqualTo(elevation), FormatErrorMessage);
+                    _ = int.TryParse(expected[++NmeaIndex], out int azimuth);
+                    Assert.That(gsv.Satellites[i].Azimuth,   Is.EqualTo(azimuth), FormatErrorMessage);
+                    _ = int.TryParse(expected[++NmeaIndex], out int snr);
+                    Assert.That(gsv.Satellites[i].SNR,       Is.EqualTo(snr), FormatErrorMessage);
                 }
             });
 
@@ -182,55 +218,83 @@ public class NmeaTests
             accumulator.Apply(gsv, data);
             Assert.Multiple(() =>
             {
-                bool isLastMessage = message == nmeaMessages[^1];
+                bool isLastMessage = nmea == nmeaMessages[^1];
                 Assert.That(data.SatellitesInView, Is.EqualTo(isLastMessage ? gsv.SatellitesInView : default));
-                Assert.That(data.Satellites, Is.EquivalentTo(isLastMessage ? expectedSatellites : []));
+                Assert.That(data.Satellites,       Is.EquivalentTo(isLastMessage ? expectedSatellites : []));
             });
 
             Assert.That(gsv.ValidateChecksum, Throws.Nothing);
-            Assert.That(NmeaSentence.Parse(message), Is.EqualTo(gsv));
+            Assert.That(NmeaSentence.Parse(nmea), Is.EqualTo(gsv));
         }
     }
 
     [Test, TestOf(nameof(RMC))]
-    [TestCase("$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A")]
+    [TestCaseSource(typeof(NmeaSource), nameof(NmeaSource.GetRMCMessages))]
     public void TestRMC(string nmea)
     {
-        Assert.Ignore();
         RMC rmc = new(nmea);
         Assert.Multiple(() =>
         {
             string[] expected = nmea[..^3].Split(',');
+            Assert.That(rmc.ID,                                Is.EqualTo(NmeaType.RMC), FormatErrorMessage);
+            Assert.That(rmc.Time.ToString("HHmmss.ff"),        Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rmc.Status,                            Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rmc.Lat,                               Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rmc.LatDir,                            Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rmc.Lon,                               Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rmc.LonDir,                            Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rmc.Speed.ToString(),                  Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rmc.Course.ToString("##0.00"),         Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rmc.Date.ToString("ddMMyy"),           Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rmc.MagneticVariation.ToString(),      Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rmc.MagneticVariationDir,              Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(GetPositionModeCode(rmc.PositionMode), Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rmc.NavStatus,                         Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
         });
 
         GPSData data = new();
         rmc.UpdateGPSData(data);
         Assert.Multiple(() =>
         {
-
+            Assert.That(data.UTC,                Is.EqualTo(new DateTime(rmc.Date, rmc.Time)));
+            Assert.That(data.Latitude,           Is.EqualTo(rmc.Latitude()));
+            Assert.That(data.Longitude,          Is.EqualTo(rmc.Longitude()));
+            Assert.That(data.PositionMode,       Is.EqualTo(rmc.PositionMode));
+            Assert.That(data.Status,             Is.EqualTo(rmc.Status));
+            Assert.That(data.NavStatus,          Is.EqualTo(rmc.NavStatus));
+            Assert.That(data.Speed,              Is.EqualTo(rmc.Speed));
+            Assert.That(data.Course,             Is.EqualTo(rmc.Course));
+            Assert.That(data.MagneticVariation,  Is.EqualTo(rmc.MagneticVariation));
+            Assert.That(data.MagneticVariationDir, Is.EqualTo(rmc.MagneticVariationDir));
         });
 
         Assert.That(rmc.ValidateChecksum, Throws.Nothing);
         Assert.That(NmeaSentence.Parse(nmea), Is.EqualTo(rmc));
     }
 
-    [Test, TestOf(nameof(RMC))]
-    [TestCase("")]
-    [TestCase("")]
+    [Test, TestOf(nameof(RME))]
+    [TestCaseSource(typeof(NmeaSource), nameof(NmeaSource.GetRMEMessages))]
     public void TestRME(string nmea)
     {
-        Assert.Ignore();
+        Assert.Ignore("It looks like this is a proprietary message and I have not found and example to test with.");
         RME rme = new(nmea);
         Assert.Multiple(() =>
         {
             string[] expected = nmea[..^3].Split(',');
+            Assert.That(rme.ID,                                      Is.EqualTo(NmeaType.RME), FormatErrorMessage);
+            Assert.That(rme.HorizontalPositionError.ToString(),      Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rme.HorizontalPositionErrorUnits,            Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rme.VerticalPositionError.ToString(),        Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rme.VerticalPositionErrorUnits,              Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rme.SphericalPositionError.ToString(),       Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(rme.SphericalPositionErrorUnits,             Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
         });
 
         GPSData data = new();
         rme.UpdateGPSData(data);
         Assert.Multiple(() =>
         {
-
+            Assert.That(data.EstimatedAccuracy, Is.EqualTo(rme.HorizontalPositionError));
         });
 
         Assert.That(rme.ValidateChecksum, Throws.Nothing);
@@ -238,22 +302,32 @@ public class NmeaTests
     }
 
     [Test, TestOf(nameof(VTG))]
-    [TestCase("")]
-    [TestCase("")]
+    [TestCaseSource(typeof(NmeaSource), nameof(NmeaSource.GetVTGMessages))]
     public void TestVTG(string nmea)
     {
-        Assert.Ignore();
         VTG vtg = new(nmea);
         Assert.Multiple(() =>
         {
             string[] expected = nmea[..^3].Split(',');
+            Assert.That(vtg.ID,                                Is.EqualTo(NmeaType.VTG), FormatErrorMessage);
+            Assert.That(vtg.CourseTrue.ToString("##0.00"),             Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(vtg.CourseTrueUnits,                   Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(vtg.CourseMagnetic.ToString(),         Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(vtg.CourseMagneticUnits,               Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(vtg.SpeedKnots.ToString(),             Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(vtg.SpeedKnotsUnits,                   Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(vtg.SpeedKMH.ToString(),               Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(vtg.SpeedKMHUnits,                     Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(GetPositionModeCode(vtg.PositionMode), Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
         });
 
         GPSData data = new();
         vtg.UpdateGPSData(data);
         Assert.Multiple(() =>
         {
-
+            Assert.That(data.Course,       Is.EqualTo(vtg.CourseTrue));
+            Assert.That(data.Speed,        Is.EqualTo(vtg.SpeedKnots));
+            Assert.That(data.PositionMode, Is.EqualTo(vtg.PositionMode));
         });
 
         Assert.That(vtg.ValidateChecksum, Throws.Nothing);
@@ -261,56 +335,58 @@ public class NmeaTests
     }
 
     [Test, TestOf(nameof(ENAV))]
-    [TestCase("$ENAV,195252.10,40.53495815,-105.04241294,40.53496139,-105.04241390,1495.534,1493.514,-0.16472,-0.01528,1.21854,0.012,0.13,0.165,0.268,0x0,25,4,2.0,0x1e0014,2052,9999,0,2,0*65")]
-    [TestCase("$ENAV,195259.70,40.53496318,-105.04240997,40.53496517,-105.04241468,1495.387,1493.389,-0.21022,0.08154,0.86950,0.022,0.13,0.225,0.278,0x0,25,4,3.0,0x1e0014,2052,9999,0,2,0*43")]
+    [TestCaseSource(typeof(NmeaSource), nameof(NmeaSource.GetENAVMessages))]
     public void TestENAV(string nmea)
     {
         ENAV enav = new(nmea);
         Assert.Multiple(() =>
         {
             string[] expected = nmea[..^3].Split(',');
-            Assert.That(enav.ID, Is.EqualTo(NmeaType.ENAV), FormatErrorMessage);
-            Assert.That(enav.Time.ToString("HHmmss.ff"), Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
-            Assert.That(enav.CompLat, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(enav.CompLon, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(enav.RawLat, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(enav.RawLon, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(enav.RawAlt, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(enav.CompAlt, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(enav.Roll, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(enav.Pitch, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(enav.Yaw, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(enav.PositionQuality, Is.EqualTo(double.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            TestContext.Out.WriteLine($"Ignored enav element {++NmeaIndex}.");
-            TestContext.Out.WriteLine($"Ignored enav element {++NmeaIndex}.");
-            TestContext.Out.WriteLine($"Ignored enav element {++NmeaIndex}.");
-            TestContext.Out.WriteLine($"Ignored enav element {++NmeaIndex}.");
-            TestContext.Out.WriteLine($"Ignored enav element {++NmeaIndex}.");
-            Assert.That(enav.RawFix, Is.EqualTo(Enum.Parse<FixQuality>(expected[++NmeaIndex])), FormatErrorMessage);
-            TestContext.Out.WriteLine($"Ignored enav element {++NmeaIndex}.");
-            TestContext.Out.WriteLine($"Ignored enav element {++NmeaIndex}.");
-            Assert.That(enav.AntennaHeight, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(enav.LidarStrength, Is.EqualTo(int.Parse(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(enav.EnavMode, Is.EqualTo(Enum.Parse<EnavMode>(expected[++NmeaIndex])), FormatErrorMessage);
-            Assert.That(enav.SHStatus, Is.EqualTo(Enum.Parse<SmartHandleStatus>(expected[++NmeaIndex])), FormatErrorMessage);
+            Assert.That(enav.ID,                               Is.EqualTo(NmeaType.ENAV), FormatErrorMessage);
+            Assert.That(enav.Time.ToString("HHmmss.ff"),       Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(enav.CompLat.ToString("00.00000000"),  Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(enav.CompLon.ToString("000.00000000"), Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(enav.RawLat.ToString("00.00000000"),   Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(enav.RawLon.ToString("000.00000000"),  Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(enav.RawAlt.ToString("0000.000"),      Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(enav.CompAlt.ToString("0000.000"),     Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(enav.Roll.ToString("0.00000"),         Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(enav.Pitch.ToString("0.00000"),        Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(enav.Yaw.ToString("0.00000"),          Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(enav.PositionQuality.ToString(),       Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            TestContext.Out.WriteLine($"Ignored enav field {++NmeaIndex}.");
+            Assert.That(enav.TiltAngle.ToString(),             Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            TestContext.Out.WriteLine($"Ignored enav field {++NmeaIndex}.");
+            TestContext.Out.WriteLine($"Ignored enav field {++NmeaIndex}.");
+            TestContext.Out.WriteLine($"Ignored enav field {++NmeaIndex}.");
+            Assert.That(enav.RawFix.ToString("d"),             Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            TestContext.Out.WriteLine($"Ignored enav field {++NmeaIndex}.");
+            TestContext.Out.WriteLine($"Ignored enav field {++NmeaIndex}.");
+            Assert.That(enav.AntennaHeight.ToString(),         Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(enav.LidarStrength.ToString(),         Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(enav.EnavMode.ToString("d"),           Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
+            Assert.That(enav.SHStatus.ToString("d"),           Is.EqualTo(expected[++NmeaIndex]), FormatErrorMessage);
         });
 
         GPSData data = new();
         enav.UpdateGPSData(data);
         Assert.Multiple(() =>
         {
-            Assert.That(data.UTC.TimeOfDay, Is.EqualTo(enav.Time.ToTimeSpan()));
-            Assert.That(data.Latitude, Is.EqualTo(enav.Latitude()));
-            Assert.That(data.Longitude, Is.EqualTo(enav.Longitude()));
-            Assert.That(data.Altitude, Is.EqualTo(enav.Altitude()));
-            Assert.That(data.FixQuality, Is.EqualTo(enav.RawFix));
-            Assert.That(data.EstimatedAccuracy, Is.EqualTo(enav.PositionQuality));
-            Assert.That(data.EnavData, Is.SameAs(enav));
+            Assert.That(data.UTC.TimeOfDay,      Is.EqualTo(enav.Time.ToTimeSpan()));
+            Assert.That(data.Latitude,           Is.EqualTo(enav.Latitude()));
+            Assert.That(data.Longitude,          Is.EqualTo(enav.Longitude()));
+            Assert.That(data.Altitude,           Is.EqualTo(enav.Altitude()));
+            Assert.That(data.FixQuality,         Is.EqualTo(enav.RawFix));
+            Assert.That(data.EstimatedAccuracy,  Is.EqualTo(enav.PositionQuality));
+            Assert.That(data.EnavData,           Is.SameAs(enav));
         });
 
         Assert.That(enav.ValidateChecksum, Throws.Nothing);
         Assert.That(NmeaSentence.Parse(nmea), Is.EqualTo(enav));
     }
+
+    public void TestSatellite()
+    {
+
+    }
 }
-
-

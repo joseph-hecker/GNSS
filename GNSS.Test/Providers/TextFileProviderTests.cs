@@ -1,8 +1,8 @@
 ﻿using GNSS.Providers;
 
-namespace GNSS.Test.Drivers;
+namespace GNSS.Test.Providers;
 
-public class TextFileDriverTests
+public class TextFileProviderTests
 {
     [Test, TestOf(nameof(TextFileProvider.Start))]
     [TestCaseSource(typeof(Util), nameof(Util.GetValidNmeaFiles))]
@@ -10,7 +10,7 @@ public class TextFileDriverTests
     {
         List<string> messages = [];
         TextFileProvider driver = new(nmeaFile);
-        //driver.OnNmeaRecieved += messages.Add;
+        driver.OnNewGPSData += (sender, data) => { if (data is string nmea) messages.Add(nmea); };
         driver.Start();
         Thread.Sleep(5_000);
         driver.Stop();

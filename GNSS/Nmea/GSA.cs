@@ -19,17 +19,17 @@ public class GSA : NmeaSentence
             SelectionMode = _parts[1];
             FixMode = (FixMode)int.Parse(_parts[2]);
             PRNs = [];
-            for (int i = 2; i < _parts.Length - 5; i++)
+            for (int i = 3; i < _parts.Length - 4; i++)
             {
                 if (int.TryParse(_parts[i], out int prn))
                 {
                     PRNs.Add(prn);
                 }
             }
-            VDOP = double.Parse(_parts[14]);
-            HDOP = double.Parse(_parts[15]);
-            PDOP = double.Parse(_parts[16]);
-            GNSSID = int.Parse(_parts[17]);
+            VDOP = double.Parse(_parts[15]);
+            HDOP = double.Parse(_parts[16]);
+            PDOP = double.Parse(_parts[17]);
+            GNSSID = int.Parse(_parts[18]);
         }
         catch (Exception ex)
         {

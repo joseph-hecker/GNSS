@@ -28,9 +28,9 @@ public class NmeaService
         Listener.Start();
     }
 
-    private void OnNmeaRevieved(string nmea)
+    private void OnNmeaRevieved(object? sender, object data)
     {
-        if (nmea.StartsWith('$') && Writer is not null)
+        if (data is string nmea && nmea.StartsWith('$') && Writer is not null)
         {
             Writer.WriteAsync(nmea);
         }
@@ -42,12 +42,12 @@ public class NmeaService
         Client = await Listener.AcceptTcpClientAsync();
         NetworkStream stream = Client.GetStream();
         Writer = new(stream, Encoding.UTF8) { AutoFlush = true };
-        //TextFileDriver.OnNmeaRecieved += OnNmeaRevieved;
+        TextFileDriver.OnNewGPSData += OnNmeaRevieved;
     }
 
     public void StopSendingNmea()
     {
-        //TextFileDriver.OnNmeaRecieved -= OnNmeaRevieved;
+        TextFileDriver.OnNewGPSData -= OnNmeaRevieved;
         TextFileDriver.Stop();
         Client?.Close();
         Client = null;
