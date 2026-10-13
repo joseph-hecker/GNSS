@@ -4,6 +4,8 @@ namespace GNSS.Nmea;
 
 public class ENAV : NmeaSentence, ILocation
 {
+    public static string BlankMessage => "$ENAV,0.00,0.00000000,0.00000000,0.00000000,0.00000000,0.000,0.000,0.00000,0.00000,0.00000,0.000,0.00,-1.000,0.000,0x0,0,0,0.0,0x0,0,0,0,0,0*2E";
+
     public TimeOnly Time { get; }
     public double CompLat { get; }
     public double CompLon { get; }
@@ -23,19 +25,24 @@ public class ENAV : NmeaSentence, ILocation
     public SmartHandleStatus SHStatus { get; }
 
     /// <summary>
+    /// If this message is blink, i.e. invalid.
+    /// </summary>
+    public bool IsBlank => _message == BlankMessage;
+
+    /// <summary>
     /// If the Skadi's tilt compensation has been initialized. Requires <see cref="FixQuality.RTKFixed"/> and IMU calibration.
     /// </summary>
     public bool TiltCompInitilized => PositionQuality == -1;
 
     /// <summary>
-    /// If the Skadi's trigger is being pressed. Only applies for extensible pole mode.
-    /// </summary>
-    public bool TriggerIsPressed => EnavMode == EnavMode.ExtensiblePoleTriggerPressed;
-
-    /// <summary>
     /// The height difference between the Skadi and the ground.
     /// </summary>
     public double InvisiblePoleHeight => RawAlt - CompAlt;
+
+    /// <summary>
+    /// If the Skadi's trigger is being pressed. Only applies for extensible pole mode.
+    /// </summary>
+    public bool TriggerIsPressed => EnavMode == EnavMode.ExtensiblePoleTriggerPressed;
 
     public ENAV(string message) : base(message)
     {
