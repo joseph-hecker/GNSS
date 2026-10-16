@@ -14,7 +14,7 @@ public abstract class NmeaSentence : ILocationInfo, IEquatable<NmeaSentence>
         try
         {
             _message = message.Replace("\r\n", "");
-            _parts = message[1..^3].Split(',');
+            _parts = _message[1..^3].Split(',');
             ID = Enum.Parse<NmeaType>(_parts[0]);
         }
         catch (Exception ex)
