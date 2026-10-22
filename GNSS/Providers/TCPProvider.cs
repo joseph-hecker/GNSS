@@ -5,6 +5,8 @@ namespace GNSS.Providers;
 
 public class TCPProvider : ILocationProvider
 {
+    public ProviderType Type => ProviderType.TCP;
+
     public event EventHandler<object>? OnNewGPSData;
 
     private string Host { get; set; }

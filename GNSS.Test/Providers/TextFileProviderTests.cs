@@ -22,7 +22,6 @@ public class TextFileProviderTests
     [TestCaseSource(typeof(Util), nameof(Util.GetInvalidNmeaFiles))]
     public void TestInvalidStart(string nmeaFile)
     {
-        List<string> messages = [];
         Assert.Throws<InvalidOperationException>(() => new TextFileProvider(nmeaFile));
     }
 }

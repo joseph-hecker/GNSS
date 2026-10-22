@@ -6,13 +6,12 @@ namespace GNSS.Workflows;
 /// <summary>
 /// 
 /// </summary>
-/// <param name="waitingForRequirements">Called whenever the workflow needs to wait for incoming GPS data
+/// <param name="waitForRequirements">Called whenever the workflow needs to wait for incoming GPS data
 /// to meet certain requirements. This method should handle any UI tasks that are needed durring this waiting period.
 /// The supplied cancelation token gets canceled when all requirements for the incoming GPS data are met.</param>
-public abstract class GNSSWorkflow(GPS gps, Func<CancellationToken, Task> waitingForRequirements)
+public abstract class GNSSWorkflow(Func<CancellationToken, Task> waitForRequirements)
 {
-    protected GPS GPS { get; } = gps;
-    protected Func<CancellationToken, Task> WaitingForRequirementsAsync { get; } = waitingForRequirements;
+    protected Func<CancellationToken, Task> WaitForRequirementsAsync { get; } = waitForRequirements;
 
     public bool RequireDGPS { get; set; }
     public bool RequireRTKFixed { get; set; }

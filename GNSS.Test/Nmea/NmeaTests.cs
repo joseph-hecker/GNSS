@@ -384,9 +384,4 @@ public class NmeaTests
         Assert.That(enav.ValidateChecksum, Throws.Nothing);
         Assert.That(NmeaSentence.Parse(nmea), Is.EqualTo(enav));
     }
-
-    public void TestSatellite()
-    {
-
-    }
 }

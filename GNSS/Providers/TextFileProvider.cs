@@ -4,6 +4,8 @@ namespace GNSS.Providers;
 
 public class TextFileProvider : ILocationProvider
 {
+    public ProviderType Type => ProviderType.TextFile;
+
     public event EventHandler<object>? OnNewGPSData;
 
     private FileStream Stream { get; set; }

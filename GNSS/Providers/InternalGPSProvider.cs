@@ -9,11 +9,14 @@ public interface IInternalGPSHelper
 
 public class InternalGPSProvider(IInternalGPSHelper helper) : ILocationProvider
 {
+    public ProviderType Type => ProviderType.InternalGPS;
+
     public event EventHandler<object>? OnNewGPSData;
 
-    public void Start(Dictionary<string, string>? ntripOptions = null)
+    public async void Start(Dictionary<string, string>? ntripOptions = null)
     {
-        helper.Start(location => OnNewGPSData?.Invoke(this, location));
+        if (await helper.EnsurePermissionsAsync())
+            helper.Start(location => OnNewGPSData?.Invoke(this, location));
     }
 
     public void Stop() => helper.Stop();

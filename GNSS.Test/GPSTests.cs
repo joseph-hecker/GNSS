@@ -22,8 +22,6 @@ public class GPSTests
         }},
     };
 
-    private GPS GPS { get; } = new();
-
     private void StartGPSWithTextFileProvider()
     {
         ProviderType providerType = ProviderType.TextFile;
@@ -45,11 +43,6 @@ public class GPSTests
             if (providerType  == ProviderType.InternalGPS)
             {
                 MockInternalGPSHelper helper = new();
-                Assert.That(() => GPS.Connect(helper), Throws.Nothing);
-            }
-            else if (providerType == ProviderType.Map)
-            {
-                MockMapHelper helper = new();
                 Assert.That(() => GPS.Connect(helper), Throws.Nothing);
             }
             else

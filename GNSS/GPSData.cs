@@ -45,6 +45,29 @@ public class GPSData : IEquatable<GPSData>
     public int? StationID { get; set; }
     public ENAV? EnavData { get; set; }
 
+    public GPSData() { }
+
+    public GPSData(GPSLocation location)
+    {
+        Latitude = Latitude;
+        Longitude = Longitude;
+        if (location.Altitude.HasValue)
+            Altitude = location.Altitude.Value;
+        if (location.Speed.HasValue)
+            Speed = location.Speed.Value;
+        if (location.Course.HasValue)
+            Course = location.Course.Value;
+        if (location.EstimatedAccuracy.HasValue)
+            EstimatedAccuracy = location.EstimatedAccuracy.Value;
+        if (location.FixQuality.HasValue)
+            FixQuality = location.FixQuality.Value;
+        if (location.UTC is DateTime utc)
+        {
+            UTCDate = DateOnly.FromDateTime(utc);
+            UTCTime = TimeOnly.FromDateTime(utc);
+        }
+    }
+
     public GPSData Copy() => new()
     {
         UTCDate = UTCDate,

@@ -64,11 +64,14 @@ public class NmeaEnumTests
             Assert.That(comparer.Compare(FixQuality.RTKFixed, FixQuality.RTKFloat), Is.GreaterThan(0));
             Assert.That(comparer.Compare(FixQuality.RTKFloat, FixQuality.DGPS), Is.GreaterThan(0));
             Assert.That(comparer.Compare(FixQuality.DGPS, FixQuality.GPS), Is.GreaterThan(0));
-            Assert.That(comparer.Compare(FixQuality.GPS, FixQuality.Invalid), Is.GreaterThan(0));
-            Assert.That(comparer.Compare(FixQuality.Invalid, FixQuality.PPS), Is.Zero);
-            Assert.That(comparer.Compare(FixQuality.Invalid, FixQuality.Estimated), Is.Zero);
-            Assert.That(comparer.Compare(FixQuality.Invalid, FixQuality.Manual), Is.Zero);
-            Assert.That(comparer.Compare(FixQuality.Invalid, FixQuality.Simulation), Is.Zero);
+            Assert.That(comparer.Compare(FixQuality.GPS, FixQuality.PPS), Is.GreaterThan(0));
+            Assert.That(comparer.Compare(FixQuality.GPS, FixQuality.Estimated), Is.GreaterThan(0));
+            Assert.That(comparer.Compare(FixQuality.GPS, FixQuality.Manual), Is.GreaterThan(0));
+            Assert.That(comparer.Compare(FixQuality.GPS, FixQuality.Simulation), Is.GreaterThan(0));
+            Assert.That(comparer.Compare(FixQuality.PPS, FixQuality.Invalid), Is.GreaterThan(0));
+            Assert.That(comparer.Compare(FixQuality.Estimated, FixQuality.Invalid), Is.GreaterThan(0));
+            Assert.That(comparer.Compare(FixQuality.Manual, FixQuality.Invalid), Is.GreaterThan(0));
+            Assert.That(comparer.Compare(FixQuality.Simulation, FixQuality.Invalid), Is.GreaterThan(0));
         });
     }
 

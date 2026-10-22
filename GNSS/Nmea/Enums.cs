@@ -81,14 +81,14 @@ public class FixQualityComparer : IComparer<FixQuality>
         {
             return fix switch
             {
-                FixQuality.RTKFixed => 4,
-                FixQuality.RTKFloat => 3,
-                FixQuality.DGPS => 2,
-                FixQuality.GPS => 1,
+                FixQuality.RTKFixed => 5,
+                FixQuality.RTKFloat => 4,
+                FixQuality.DGPS => 3,
+                FixQuality.GPS => 2,
                 FixQuality.Simulation or
                 FixQuality.Manual or
                 FixQuality.Estimated or
-                FixQuality.PPS or
+                FixQuality.PPS => 1,
                 FixQuality.Invalid or
                 _ => 0,
             };

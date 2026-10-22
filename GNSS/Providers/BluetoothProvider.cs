@@ -4,6 +4,8 @@ namespace GNSS.Providers;
 
 public class BluetoothProvider : ILocationProvider
 {
+    public ProviderType Type => ProviderType.Bluetooth;
+
     public event EventHandler<object>? OnNewGPSData;
 
     private SerialPort SerialPort { get; set; }

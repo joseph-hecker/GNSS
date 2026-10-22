@@ -3,7 +3,7 @@
 /// <summary>
 /// GNSS workflow for Skadi Tilt Compensation Mode and Skadi Invisible Pole Mode.
 /// </summary>
-public class SkadiTiltCompWorkflow(GPS gps, Func<CancellationToken, Task> waitingForRequirements) : GNSSWorkflow(gps, waitingForRequirements)
+public class SkadiTiltCompWorkflow(Func<CancellationToken, Task> waitForRequirements) : GNSSWorkflow(waitForRequirements)
 {
     public new bool RequireDGPS => true;
     public new bool RequireRTKFixed => true;
@@ -27,7 +27,7 @@ public class SkadiTiltCompWorkflow(GPS gps, Func<CancellationToken, Task> waitin
     public override async Task<GPSData> CollectVertexAsync()
     {
         CancellationToken ct = GPS.WaitForRequirements(CheckRequirements);
-        await WaitingForRequirementsAsync(ct);
+        await WaitForRequirementsAsync(ct);
 
         GPSData data = await GPS.GetNextLocationAsync();
         LogCollection(data);

@@ -3,12 +3,12 @@
 /// <summary>
 /// GNSS workflow for Skadi Extensible Pole Mode.
 /// </summary>
-public class SkadiEPMWorkflow(GPS gps, Func<CancellationToken, Task> waitingForRequirements) : SkadiTiltCompWorkflow(gps, waitingForRequirements)
+public class SkadiEPMWorkflow(Func<CancellationToken, Task> waitForRequirements) : SkadiTiltCompWorkflow(waitForRequirements)
 {
     public override async Task<GPSData> CollectVertexAsync()
     {
         CancellationToken ct = GPS.WaitForRequirements(CheckRequirements);
-        await WaitingForRequirementsAsync(ct);
+        await WaitForRequirementsAsync(ct);
 
         ct = GPS.WaitForSkadiTriggerPressed();
         TaskCompletionSource<GPSData> source = new();
