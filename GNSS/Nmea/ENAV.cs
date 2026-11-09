@@ -4,7 +4,7 @@ namespace GNSS.Nmea;
 
 public class ENAV : NmeaSentence, ILocation
 {
-    public static string BlankMessage => "$ENAV,0.00,0.00000000,0.00000000,0.00000000,0.00000000,0.000,0.000,0.00000,0.00000,0.00000,0.000,0.00,-1.000,0.000,0x0,0,0,0.0,0x0,0,0,0,0,0*2E";
+    public const string BlankMessage = "$ENAV,0.00,0.00000000,0.00000000,0.00000000,0.00000000,0.000,0.000,0.00000,0.00000,0.00000,0.000,0.00,-1.000,0.000,0x0,0,0,0.0,0x0,0,0,0,0,0*2E";
 
     public TimeOnly Time { get; }
     public double CompLat { get; }
@@ -25,7 +25,7 @@ public class ENAV : NmeaSentence, ILocation
     public SmartHandleStatus SHStatus { get; }
 
     /// <summary>
-    /// If this message is blink, i.e. invalid.
+    /// If this message is blank, i.e. invalid.
     /// </summary>
     public bool IsBlank => _message == BlankMessage;
 

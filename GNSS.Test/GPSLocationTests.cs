@@ -26,14 +26,14 @@ public class GPSLocationTests
         location.UpdateGPSData(data);
         Assert.Multiple(() =>
         {
-            Assert.That(data.Latitude,           Is.EqualTo(location.Latitude));
-            Assert.That(data.Longitude,          Is.EqualTo(location.Longitude));
-            Assert.That(data.Altitude,           Is.EqualTo(location.Altitude));
-            Assert.That(data.Speed,              Is.EqualTo(location.Speed));
-            Assert.That(data.Course,             Is.EqualTo(location.Course));
-            Assert.That(data.EstimatedAccuracy,  Is.EqualTo(location.EstimatedAccuracy));
-            Assert.That(data.FixQuality,         Is.EqualTo(location.FixQuality));
-            Assert.That(data.UTC,                Is.EqualTo(location.UTC));
+            Assert.That(data.Latitude,          Is.EqualTo(location.Latitude));
+            Assert.That(data.Longitude,         Is.EqualTo(location.Longitude));
+            Assert.That(data.Altitude,          Is.EqualTo(location.Altitude));
+            Assert.That(data.Speed,             Is.EqualTo(location.Speed));
+            Assert.That(data.Course,            Is.EqualTo(location.Course));
+            Assert.That(data.EstimatedAccuracy, Is.EqualTo(location.EstimatedAccuracy));
+            Assert.That(data.FixQuality,        Is.EqualTo(location.FixQuality));
+            Assert.That(data.UTC,               Is.EqualTo(location.UTC));
         });
     }
 }

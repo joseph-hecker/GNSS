@@ -96,18 +96,25 @@ public static class GPS
 
     static private void Connect(ILocationProvider provider)
     {
-        Disconnect();
-        LocationProvider = provider;
-
-        string strProvider = provider.Type switch
+        try
         {
-            ProviderType.InternalGPS => "device GPS",
-            ProviderType.TCP => "TCP",
-            ProviderType.Bluetooth => "bluetooth",
-            ProviderType.TextFile => "text file",
-            _ => "unknown",
-        };
-        Logger?.LogInformation("GPS connected to {provider} provider.", strProvider);
+            Disconnect();
+            LocationProvider = provider;
+
+            string strProvider = provider.Type switch
+            {
+                ProviderType.InternalGPS => "internal GPS",
+                ProviderType.TCP => "TCP",
+                ProviderType.Bluetooth => "bluetooth",
+                ProviderType.TextFile => "text file",
+                _ => "unknown",
+            };
+            Logger?.LogInformation("GPS connected to {provider} provider.", strProvider);
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "Could not connect to GPS: {error}", ex.Message);
+        }
     }
 
     static public void Connect(ProviderType providerType, Dictionary<string, string> providerOptions)
@@ -118,7 +125,7 @@ public static class GPS
             ProviderType.Bluetooth => new BluetoothProvider(providerOptions[Options.COMPort], int.Parse(providerOptions[Options.BaudRate])),
             ProviderType.TextFile => new TextFileProvider(providerOptions[Options.NmeaFile]),
             ProviderType.InternalGPS => throw new InvalidOperationException("Use `Connect(IInternalGPSHelper helper)` instead."),
-            _ => throw new InvalidOperationException($"`{providerType}` GPS provider is not supported."),
+            _ => throw new InvalidOperationException("Selected GPS provider is not supported."),
         });
     }
 

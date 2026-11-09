@@ -49,8 +49,8 @@ public class GPSData : IEquatable<GPSData>
 
     public GPSData(GPSLocation location)
     {
-        Latitude = Latitude;
-        Longitude = Longitude;
+        Latitude = location.Latitude;
+        Longitude = location.Longitude;
         if (location.Altitude.HasValue)
             Altitude = location.Altitude.Value;
         if (location.Speed.HasValue)

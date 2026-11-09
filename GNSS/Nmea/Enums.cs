@@ -75,7 +75,7 @@ public enum FixQuality : int
 
 public class FixQualityComparer : IComparer<FixQuality>
 {
-    public int Compare(FixQuality a, FixQuality b)
+    public int Compare(FixQuality x, FixQuality y)
     {
         static int Map(FixQuality fix)
         {
@@ -94,7 +94,7 @@ public class FixQualityComparer : IComparer<FixQuality>
             };
         }
 
-        return Map(a) - Map(b);
+        return Map(x) - Map(y);
     }
 
     public FixQuality Max(params FixQuality[] fixes) => fixes.Max(this);

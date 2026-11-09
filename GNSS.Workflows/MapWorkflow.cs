@@ -15,6 +15,8 @@ public class MapWorkflow(IMapCenterSource map) : GNSSWorkflow((ct) => Task.Compl
 
     private IMapCenterSource Map { get; } = map;
 
+    protected override bool CheckRequirements(GPSData data) => true;
+
     public override Task<GPSData> CollectVertexAsync()
     {
         GPSData gpsData = new(Map.GetMapCenter());
